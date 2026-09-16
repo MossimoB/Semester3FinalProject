@@ -37,3 +37,9 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+# Logs
+*.log
+
+# Local save files produced by the simulation
+savegame.json
