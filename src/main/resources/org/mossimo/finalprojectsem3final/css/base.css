@@ -1,0 +1,300 @@
+/*
+*  THE PALETTE
+*    Defined once on .root, which every node inherits from. Changing
+*    -ink-accent here recolours the whole application. This matches the palette
+*    used in the HTML mockups, so the app and the proposal look like the same
+*    product.
+*/
+
+.root {
+    -fx-font-family: "Segoe UI", "Inter", sans-serif;
+    -fx-font-size: 13px;
+
+    /* Backgrounds, darkest to lightest */
+    -ink-bg:        #0e1116;
+    -ink-panel:     #161b22;
+    -ink-row:       #1a2029;
+    -ink-raised:    #21262d;
+
+    /* Lines */
+    -ink-border:    #262d38;
+
+    /* Text */
+    -ink-text:      #e6edf3;
+    -ink-muted:     #8b949e;
+
+    /* Meaning. Green is a gain, red is a loss, everywhere, with no exceptions. */
+    -ink-gain:      #3fb950;
+    -ink-loss:      #f85149;
+    -ink-accent:    #58a6ff;
+    -ink-warning:   #d29922;
+
+    -fx-background-color: -ink-bg;
+}
+
+/*
+        layout containers
+*/
+
+.root-pane {
+    -fx-background-color: -ink-bg;
+}
+
+.panel {
+    -fx-background-color: -ink-panel;
+    -fx-border-color: -ink-border;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 16;
+}
+
+/*
+        text
+*/
+
+.title {
+    -fx-text-fill: -ink-text;
+    -fx-font-size: 40px;
+    -fx-font-weight: bold;
+}
+
+.subtitle {
+    -fx-text-fill: -ink-muted;
+    -fx-font-size: 15px;
+}
+
+.heading {
+    -fx-text-fill: -ink-text;
+    -fx-font-size: 17px;
+    -fx-font-weight: bold;
+}
+
+/* Small grey uppercase label above a group of controls */
+.section-label {
+    -fx-text-fill: -ink-muted;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.body-text {
+    -fx-text-fill: -ink-text;
+}
+
+.muted-text {
+    -fx-text-fill: -ink-muted;
+    -fx-font-size: 12px;
+}
+
+/* Monospace, for anything in a column of numbers */
+.mono {
+    -fx-font-family: "Consolas", "Menlo", monospace;
+}
+
+/*
+        gain and loss
+*/
+
+.gain    { -fx-text-fill: -ink-gain; }
+.loss    { -fx-text-fill: -ink-loss; }
+.neutral { -fx-text-fill: -ink-muted; }
+.warning { -fx-text-fill: -ink-warning; }
+
+/*
+        buttons
+ */
+
+.button {
+    -fx-background-color: -ink-raised;
+    -fx-text-fill: -ink-text;
+    -fx-border-color: -ink-border;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 8 18 8 18;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.button:hover {
+    -fx-background-color: #2d333b;
+}
+
+/* :pressed gives immediate feedback on click */
+.button:pressed {
+    -fx-background-color: #30363d;
+}
+
+.button:disabled {
+    -fx-opacity: 0.40;
+    -fx-cursor: default;
+}
+
+/* The one button on a screen that the player most likely wants */
+.button-primary {
+    -fx-background-color: -ink-accent;
+    -fx-text-fill: #06121f;
+    -fx-border-color: -ink-accent;
+}
+
+.button-primary:hover {
+    -fx-background-color: #79b8ff;
+}
+
+.button-buy {
+    -fx-background-color: -ink-gain;
+    -fx-text-fill: #08130b;
+    -fx-border-color: -ink-gain;
+}
+
+.button-buy:hover {
+    -fx-background-color: #4fd063;
+}
+
+.button-sell {
+    -fx-background-color: -ink-loss;
+    -fx-text-fill: #1b0706;
+    -fx-border-color: -ink-loss;
+}
+
+.button-sell:hover {
+    -fx-background-color: #ff6a61;
+}
+
+/* A button that looks like a link. Used for Back and secondary actions */
+.button-ghost {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: -ink-muted;
+}
+
+.button-ghost:hover {
+    -fx-text-fill: -ink-text;
+    -fx-background-color: -ink-raised;
+}
+
+/*
+        inputs
+ */
+
+.combo-box, .text-field, .spinner {
+    -fx-background-color: -ink-bg;
+    -fx-border-color: -ink-border;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-text-fill: -ink-text;
+}
+
+.combo-box .list-cell {
+    -fx-text-fill: -ink-text;
+    -fx-background-color: transparent;
+    -fx-padding: 4 8 4 8;
+}
+
+.combo-box-popup .list-view {
+    -fx-background-color: -ink-panel;
+    -fx-border-color: -ink-border;
+}
+
+.combo-box-popup .list-cell:hover {
+    -fx-background-color: -ink-raised;
+}
+
+.text-field {
+    -fx-padding: 7 10 7 10;
+    -fx-highlight-fill: -ink-accent;
+}
+
+/*
+        check box
+ */
+
+.check-box {
+    -fx-text-fill: -ink-text;
+    -fx-font-size: 13px;
+}
+
+.check-box .box {
+    -fx-background-color: -ink-bg;
+    -fx-border-color: -ink-border;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 3;
+}
+
+.check-box:selected .box {
+    -fx-background-color: -ink-accent;
+    -fx-border-color: -ink-accent;
+}
+
+/* The tick itself. It has to be dark, because the box behind it is now the
+   bright accent colour. */
+.check-box:selected .mark {
+    -fx-background-color: #06121f;
+}
+
+.check-box:hover .box {
+    -fx-border-color: -ink-accent;
+}
+
+/*
+        scroll pane
+ */
+
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* Removes the focus ring drawn around a focused ScrollPane */
+.scroll-pane:focused {
+    -fx-background-insets: 0;
+}
+
+/*
+        scroll bars
+ */
+
+.scroll-bar {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar .track {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: #30363d;
+    -fx-background-radius: 5;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: #434c56;
+}
+
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow {
+    -fx-shape: " ";
+    -fx-padding: 0;
+}
+
+/*
+        separators
+ */
+
+.separator .line {
+    -fx-border-color: -ink-border;
+    -fx-border-width: 1 0 0 0;
+}
