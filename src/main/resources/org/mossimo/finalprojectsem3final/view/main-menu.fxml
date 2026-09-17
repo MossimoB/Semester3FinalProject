@@ -49,3 +49,53 @@
                        text=""
                        styleClass="mono, muted-text"/>
             </VBox>
+
+            <Region prefHeight="20"/>
+
+            <!-- Buttons  -->
+            <VBox spacing="8" maxWidth="360">
+                <Button fx:id="newGameButton"
+                        text="New Game"
+                        onAction="#onNewGame"
+                        maxWidth="Infinity"
+                        styleClass="button-primary"/>
+
+                <Button fx:id="loadGameButton"
+                        text="Load Game"
+                        onAction="#onLoadGame"
+                        maxWidth="Infinity"/>
+
+                <HBox spacing="8">
+                    <Button fx:id="highScoresButton"
+                            text="High Scores"
+                            onAction="#onHighScores"
+                            maxWidth="Infinity"
+                            HBox.hgrow="ALWAYS"/>
+
+                    <Button fx:id="settingsButton"
+                            text="Settings"
+                            onAction="#onSettings"
+                            maxWidth="Infinity"
+                            HBox.hgrow="ALWAYS"/>
+                </HBox>
+
+                <Button fx:id="aboutButton"
+                        text="About"
+                        onAction="#onAbout"
+                        maxWidth="Infinity"
+                        styleClass="button-ghost"/>
+
+                <Button text="Quit"
+                        onAction="#onQuit"
+                        maxWidth="Infinity"
+                        styleClass="button-ghost"/>
+            </VBox>
+
+            <Region prefHeight="24"/>
+
+            <Label text="No real money. No real companies. All prices are simulated."
+                   styleClass="muted-text"/>
+        </VBox>
+    </center>
+
+</BorderPane>
