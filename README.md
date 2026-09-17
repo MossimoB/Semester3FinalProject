@@ -103,7 +103,7 @@ real high-risk asset behaves, and the model was never told to do it.
 
 ```
 pom.xml
-src/main/java/com/stocksim/
+src/main/java/org/finalprojectsem3final/
   Main.java                      JavaFX entry point
   model/       Stock, Market, Holding, Portfolio, Transaction, TradeResult,
                Simulation, SimulationState, GameConfig, Difficulty, Game,
@@ -118,14 +118,10 @@ src/main/java/com/stocksim/
   controller/  Splash, MainMenu, Dashboard, Portfolio, Results, HighScore,
                Settings, About
   demo/        MarketDemo, BalanceCheck, TradingDemo, FullRunDemo
-src/main/resources/com/stocksim/
+src/main/resources/org/finalprojectsem3final/
   view/        8 FXML screens
   css/         base, components, charts
-src/test/java/com/stocksim/       110 tests
-docs/
-  build-guide/ 14-week rebuild guide, one file per week
-  proposal/    Deliverable 1
-  mockups/     HTML interface prototype
+src/test/java/org/finalprojectsem3final/       110 tests
 ```
 
 ## Save format
