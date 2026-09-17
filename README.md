@@ -103,7 +103,7 @@ real high-risk asset behaves, and the model was never told to do it.
 
 ```
 pom.xml
-src/main/java/org/finalprojectsem3final/
+src/main/java/org/mossimo/finalprojectsem3final/
   Main.java                      JavaFX entry point
   model/       Stock, Market, Holding, Portfolio, Transaction, TradeResult,
                Simulation, SimulationState, GameConfig, Difficulty, Game,
@@ -118,10 +118,10 @@ src/main/java/org/finalprojectsem3final/
   controller/  Splash, MainMenu, Dashboard, Portfolio, Results, HighScore,
                Settings, About
   demo/        MarketDemo, BalanceCheck, TradingDemo, FullRunDemo
-src/main/resources/org/finalprojectsem3final/
+src/main/resources/org/mossimo/finalprojectsem3final/
   view/        8 FXML screens
   css/         base, components, charts
-src/test/java/org/finalprojectsem3final/       110 tests
+src/test/java/org/mossimo/finalprojectsem3final/       110 tests
 ```
 
 ## Save format
