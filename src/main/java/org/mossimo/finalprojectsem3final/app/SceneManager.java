@@ -82,4 +82,101 @@ public class SceneManager {
         }
     }
 
+    /**
+     * Loads an FXML file and hands the AppContext to its controller
+     *
+     * @return the root node of the loaded screen
+     */
+    private Parent load(ScreenId screen) throws IOException {
+        URL location = getClass().getResource(screen.getResourcePath());
+
+        if (location == null) {
+            throw new IOException(
+                    "FXML not found on the classpath: " + screen.getResourcePath()
+                            + "\n  Expected file: src/main/resources" + screen.getResourcePath()
+                            + "\n  If the file exists, run 'mvn clean compile' so Maven copies it.");
+        }
+
+        FXMLLoader loader = new FXMLLoader(location);
+        Parent root = loader.load();
+
+        // Hand over the shared state, if this controller wants it
+        Object controller = loader.getController();
+        if (controller instanceof ScreenController screenController) {
+            screenController.init(context);
+        }
+
+        return root;
+    }
+
+    /**
+     * Attaches every stylesheet that exists and missing ones are skipped
+     */
+    private void attachStylesheets() {
+        for (String path : STYLESHEETS) {
+            URL url = getClass().getResource(path);
+
+            if (url != null) {
+                scene.getStylesheets().add(url.toExternalForm());
+            }
+        }
+    }
+
+    /*
+            access
+     */
+
+    public Stage getStage() {
+        return stage;
+    }
+
+    public Scene getScene() {
+        return scene;
+    }
+
+    public ScreenId getCurrentScreen() {
+        return currentScreen;
+    }
+
+    /**
+     * The screen shown before this one, or the given fallback
+     */
+    public ScreenId getPreviousScreen(ScreenId fallback) {
+        return previousScreen == null ? fallback : previousScreen;
+    }
+
+    /**
+     * Goes back one step, or to the fallback if there is no history
+     */
+    public void goBack(ScreenId fallback) {
+        show(getPreviousScreen(fallback));
+    }
+
+    /**
+     * Closes the application
+     */
+    public void quit() {
+        stage.close();
+    }
+
+    /**
+     *  JavaFX calls the controller's {initialize()} method during {loader.load()}, which is before {init()} runs
+     *  So at {initialize()} time the context is still null
+     *
+     * Any controller that needs the AppContext implements it,
+     * and load() hands the context over right after the FXML finishes loading
+     *
+     *  Getting this backwards produces a NullPointerException
+     */
+    public interface ScreenController {
+
+        /**
+         * Called once, after the FXML has loaded
+         *
+         * Anything that needs a shared state (loading data, starting the clock, drawing charts)
+         *
+         * @param context the shared application state
+         */
+        void init(AppContext context);
+    }
 }
