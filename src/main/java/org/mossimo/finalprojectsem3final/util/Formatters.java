@@ -86,4 +86,55 @@ public class Formatters {
     public static String shares(int count) {
         return count == 0 ? "–" : String.format("%,d", count);
     }
+
+    /*
+            time
+     */
+
+
+    /**
+     * The simulation clock
+     *
+     * clock(4, 10, 11)  →  "Day 4 / 10   11:00"
+     */
+    public static String clock(int day, int totalDays, int hour) {
+        return String.format("Day %d / %d   %02d:00", day, totalDays, hour);
+    }
+
+    /*
+            css helpers
+     */
+
+    /**
+     * The CSS class name for a number's sign: {@code "gain"}, {@code "loss"}, or
+     * {@code "neutral"}
+     *
+     * This is so the colour rule lives in one place
+     * rather than being re-decided every time in the
+     * future of the build
+     */
+    public static String signClass(double value) {
+        if (value > 0) {
+            return "gain";
+        }
+        if (value < 0) {
+            return "loss";
+        }
+        return "neutral";
+    }
+
+    /**
+     * Shortens a long string with an ellipsis
+     *
+     * truncate("Artificial Intelligence", 12)  →  "Artificial…"
+     */
+    public static String truncate(String text, int maxLength) {
+        if (text == null) {
+            return "";
+        }
+        if (text.length() <= maxLength) {
+            return text;
+        }
+        return text.substring(0, Math.max(0, maxLength - 1)) + "…";
+    }
 }
