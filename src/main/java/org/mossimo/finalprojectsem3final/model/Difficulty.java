@@ -71,7 +71,7 @@ public enum Difficulty {
     /**
      * The percentage gain the player must achieve to win.
      *
-     * <pre>requiredGain = (target - start) / start × 100</pre>
+     * requiredGain = (target - start) / start × 100
      */
     public double getRequiredGainPercent() {
         return (targetValue - startingCash) / startingCash * 100.0;
@@ -101,11 +101,6 @@ public enum Difficulty {
         return description;
     }
 
-    /**
-     * Used by JavaFX ComboBoxes from Week 5, which call toString() on each item
-     * to decide what to show. Without this the menu would read "EASY", "NORMAL",
-     * "HARD" in shouting capitals.
-     */
     @Override
     public String toString() {
         return displayName;
