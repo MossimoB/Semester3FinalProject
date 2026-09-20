@@ -43,4 +43,104 @@ class StockTest {
     /*
             group 1: the state of a brand-new stock
      */
+
+    @Test
+    @DisplayName("A new stock sits at its starting price")
+    void newStock_startsAtStartingPrice() {
+        Stock stock = newTestStock();
+
+        assertEquals(100.00, stock.getCurrentPrice(), TOLERANCE,
+                "currentPrice should equal startingPrice before any tick");
+
+        // previousPrice must also be the starting price, not 0
+        // If it were 0, getPercentChange() would divide by zero on the very first call
+        assertEquals(100.00, stock.getPreviousPrice(), TOLERANCE,
+                "previousPrice should also equal startingPrice before any tick");
+
+        // A stock that has not moved has not changed
+        assertEquals(0.0, stock.getPercentChange(), TOLERANCE,
+                "a stock that has not ticked has not changed");
+    }
+
+    @Test
+    @DisplayName("A new stock has exactly one price in its history")
+    void newStock_hasOneHistoryEntry() {
+        Stock stock = newTestStock();
+
+        assertEquals(1, stock.getHistorySize(),
+                "history should start with the opening price, not empty");
+
+        assertEquals(100.00, stock.getPriceHistory().get(0), TOLERANCE,
+                "the first history entry should be the starting price");
+    }
+
+    /*
+            group 2: what setPrice does
+     */
+
+
+    @Test
+    @DisplayName("setPrice moves the old current price into previous")
+    void setPrice_movesCurrentPriceToPrevious() {
+        Stock stock = newTestStock();
+
+        stock.setPrice(110.00);
+
+        assertEquals(110.00, stock.getCurrentPrice(), TOLERANCE,
+                "currentPrice should be the new price");
+        assertEquals(100.00, stock.getPreviousPrice(), TOLERANCE,
+                "previousPrice should be the price from before the call");
+
+        // Second tick: previous should now be the first new price, not the
+        // original starting price. This catches the classic bug where previous
+        // is assigned from startingPrice instead of currentPrice
+        stock.setPrice(120.00);
+
+        assertEquals(120.00, stock.getCurrentPrice(), TOLERANCE);
+        assertEquals(110.00, stock.getPreviousPrice(), TOLERANCE,
+                "previous should follow one step behind, every tick");
+    }
+
+    // Honest note, I had to Google how to do this part
+    // It is my first time using history.get(n) but it is very useful
+    //
+    //
+    // Note to self about what history.get(n) does:
+    // history is a numbered row of prices. get(n) hands back the one in slot n, counting from 0
+    //
+    // history.get(0) → the stock's starting price
+    // history.get(history.size() - 1) → the current price
+    // history.get(n) → the price after the nth tick
+    @Test
+    @DisplayName("setPrice appends to the history and keeps the order")
+    void setPrice_appendsToHistory() {
+        Stock stock = newTestStock();
+
+        stock.setPrice(105.00);
+        stock.setPrice(98.00);
+        stock.setPrice(103.00);
+
+        assertEquals(4, stock.getHistorySize(),
+                "1 opening price + 3 ticks = 4 entries");
+
+        List<Double> history = stock.getPriceHistory();
+
+        // Oldest first because the chart that we will add in the future
+        // plots this list left to right and would end up
+        // drawing the graph backwards if the order were ever reversed
+        assertEquals(100.00, history.get(0), TOLERANCE, "index 0 = opening price");
+        assertEquals(105.00, history.get(1), TOLERANCE);
+        assertEquals(98.00,  history.get(2), TOLERANCE);
+        assertEquals(103.00, history.get(3), TOLERANCE, "last entry = current price");
+
+        assertEquals(stock.getCurrentPrice(), history.get(history.size() - 1), TOLERANCE,
+                "the last history entry must always equal the current price");
+    }
+
+    /*
+            group 3: percentage calculations
+     */
+
+    @Test
+    @DisplayName()
 }
