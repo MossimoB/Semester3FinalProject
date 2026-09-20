@@ -78,7 +78,6 @@ class StockTest {
             group 2: what setPrice does
      */
 
-
     @Test
     @DisplayName("setPrice moves the old current price into previous")
     void setPrice_movesCurrentPriceToPrevious() {
@@ -142,5 +141,104 @@ class StockTest {
      */
 
     @Test
-    @DisplayName()
+    @DisplayName("Percent change is positive when the price rises")
+    void getPercentChange_positiveWhenPriceRises() {
+        Stock stock = newTestStock();
+
+        stock.setPrice(103.00);
+
+        // (103 - 100) / 100 × 100 = +3.00%
+        assertEquals(3.00, stock.getPercentChange(), TOLERANCE);
+
+        // And the dollar change agrees with the percentage
+        assertEquals(3.00, stock.getPriceChange(), TOLERANCE);
+    }
+
+    @Test
+    @DisplayName("Percent change is negative when the price falls")
+    void getPercentChange_negativeWhenPriceFalls() {
+        Stock stock = newTestStock();
+
+        stock.setPrice(92.50);
+
+        // (92.50 - 100) / 100 × 100 = -7.50%
+        assertEquals(-7.50, stock.getPercentChange(), TOLERANCE);
+        assertEquals(-7.50, stock.getPriceChange(), TOLERANCE);
+
+        // A second fall is measured against 92.50, NOT against the original 100
+        // Getting this wrong makes a recovering stock look like it is still crashing
+        stock.setPrice(83.25);
+
+        // (83.25 - 92.50) / 92.50 × 100 = -10.00%
+        assertEquals(-10.00, stock.getPercentChange(), TOLERANCE,
+                "each tick is measured against the tick before it");
+    }
+
+    @Test
+    @DisplayName("Total percent change is measured from day 1, not the last tick")
+    void getTotalPercentChange_measuresFromStartingPrice() {
+        Stock stock = newTestStock();
+
+        stock.setPrice(120.00);
+        stock.setPrice(110.00);
+
+        // Since the last tick: (110 - 120) / 120 × 100 = -8.33%
+        assertEquals(-8.333, stock.getPercentChange(), 0.01,
+                "down since the previous hour");
+
+        // Since day 1: (110 - 100) / 100 × 100 = +10.00%
+        assertEquals(10.00, stock.getTotalPercentChange(), TOLERANCE,
+                "but still up overall");
+
+        // These two numbers having opposite signs is the whole point of showing
+        // both on the stock detail screen (in the future)
+    }
+
+    /*
+            group 4: safety rules
+     */
+
+    @Test
+    @DisplayName("A price can never fall below the $1.00 floor")
+    void setPrice_floorsAtMinimumPrice() {
+        Stock stock = newTestStock();
+
+        stock.setPrice(0.50);
+        assertEquals(Stock.MINIMUM_PRICE, stock.getCurrentPrice(), TOLERANCE,
+                "$0.50 should be raised to the $1.00 floor");
+
+        stock.setPrice(-40.00);
+        assertEquals(Stock.MINIMUM_PRICE, stock.getCurrentPrice(), TOLERANCE,
+                "a negative price should be raised to the floor, not stored");
+
+        stock.setPrice(0.0);
+        assertEquals(Stock.MINIMUM_PRICE, stock.getCurrentPrice(), TOLERANCE,
+                "zero should be raised to the floor");
+
+        // The floored value is what goes into the history too, so the chart can
+        // never plot a negative point
+        List<Double> history = stock.getPriceHistory();
+        for (double price : history) {
+            assertTrue(price >= Stock.MINIMUM_PRICE,
+                    "no history entry may be below the floor, found " + price);
+        }
+    }
+
+    @Test
+    @DisplayName("The price history cannot be modified from outside the class")
+    void getPriceHistory_cannotBeModifiedFromOutside() {
+        Stock stock = newTestStock();
+        stock.setPrice(105.00);
+
+        List<Double> history = stock.getPriceHistory();
+
+        // getPriceHistory() returns an unmodifiable copy
+        assertThrows(UnsupportedOperationException.class,
+                () -> history.add(999.00),
+                "the returned history must be unmodifiable");
+
+        // The real history is untouched
+        assertEquals(2, stock.getHistorySize(),
+                "the stock's own history should still have 2 entries");
+    }
 }
