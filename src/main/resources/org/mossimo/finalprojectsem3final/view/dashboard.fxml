@@ -97,7 +97,7 @@ after it to the right-hand end of an HBox -->
             </padding>
 
             <Label text="MARKET" styleClass="section-label"/>
-            <Label fx:id="placeholderLabel" text="The market arrives in Week 4."
+            <Label fx:id="placeholderLabel" text="The market arrives soon."
                    styleClass="muted-text"/>
 
             <!-- Later, we will add the price chart + stats, trade row, news ticker, and small charts grid here -->
