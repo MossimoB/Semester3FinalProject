@@ -102,12 +102,12 @@ public class Formatters {
     }
 
     /*
-            css helpers
+            CSS helpers
      */
 
     /**
-     * The CSS class name for a number's sign: {@code "gain"}, {@code "loss"}, or
-     * {@code "neutral"}
+     * The CSS class name for a number's sign: {"gain"}, {"loss"}, or
+     * {"neutral"}
      *
      * This is so the colour rule lives in one place
      * rather than being re-decided every time in the
