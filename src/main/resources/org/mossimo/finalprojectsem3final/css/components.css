@@ -170,3 +170,296 @@
 /*
         split pane
  */
+.split-pane {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.split-pane > .split-pane-divider {
+    -fx-background-color: -ink-border;
+    -fx-padding: 0 1 0 1;
+}
+
+.split-pane > .split-pane-divider:hover {
+    -fx-background-color: -ink-accent;
+}
+
+.split-pane > * {
+    -fx-background-color: transparent;
+}
+
+/*
+        summary bar
+ */
+.summary-bar {
+    -fx-padding: 12 0 12 0;
+}
+
+.summary-cell {
+    -fx-background-color: -ink-panel;
+    -fx-border-color: -ink-border;
+    -fx-border-width: 1;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 9 14 9 14;
+}
+
+.summary-caption {
+    -fx-text-fill: -ink-muted;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+}
+
+.summary-value {
+    -fx-text-fill: -ink-text;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+/*
+        tables
+ */
+.table-view {
+    -fx-background-color: -ink-panel;
+    -fx-border-color: -ink-border;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 0;
+}
+
+/*
+* Removes the thin focus ring JavaFX draws around a focused table
+*/
+.table-view:focused {
+    -fx-background-insets: 0;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: -ink-panel;
+    -fx-background-radius: 8 8 0 0;
+}
+
+.table-view .column-header,
+.table-view .filler {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent -ink-border transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-size: 32;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: -ink-muted;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 0 8 0 8;
+}
+
+.table-row-cell {
+    -fx-background-color: -ink-panel;
+    -fx-border-color: transparent;
+    -fx-table-cell-border-color: transparent;
+    -fx-cell-size: 34;
+}
+
+.table-row-cell:odd {
+    -fx-background-color: -ink-row;
+}
+
+.table-row-cell:hover {
+    -fx-background-color: #232a35;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #1f6feb44;
+}
+
+.table-view .table-cell {
+    -fx-text-fill: -ink-text;
+    -fx-font-size: 13px;
+    -fx-border-color: transparent;
+    -fx-padding: 0 8 0 8;
+}
+
+.table-view .table-cell.gain    {
+    -fx-text-fill: -ink-gain;
+}
+
+.table-view .table-cell.loss    {
+    -fx-text-fill: -ink-loss;
+}
+
+.table-view .table-cell.neutral {
+    -fx-text-fill: -ink-muted;
+}
+
+.table-row-cell:empty {
+    -fx-background-color: transparent;
+}
+
+.table-row-cell:empty .table-cell {
+    -fx-border-width: 0;
+}
+
+/*
+        selected stock panel
+*/
+.detail-name {
+    -fx-text-fill: -ink-text;
+    -fx-font-size: 17px;
+    -fx-font-weight: bold;
+}
+
+.detail-industry {
+    -fx-text-fill: -ink-muted;
+    -fx-font-size: 12px;
+}
+
+.detail-price {
+    -fx-text-fill: -ink-text;
+    -fx-font-size: 30px;
+    -fx-font-weight: bold;
+    -fx-font-family: "Consolas", "Menlo", monospace;
+}
+
+.detail-change {
+    -fx-font-size: 14px;
+    -fx-font-family: "Consolas", "Menlo", monospace;
+}
+
+.detail-description {
+    -fx-text-fill: -ink-muted;
+    -fx-font-size: 12px;
+}
+
+.risk-badge {
+    -fx-background-color: -ink-raised;
+    -fx-border-color: -ink-border;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 2 10 2 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+/*
+        statistics panel
+ */
+.stat-label {
+    -fx-text-fill: -ink-muted;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+}
+
+.stat-value {
+    -fx-text-fill: -ink-text;
+    -fx-font-size: 13px;
+    -fx-font-family: "Consolas", "Menlo", monospace;
+}
+
+/*
+        trade row
+ */
+.trade-row {
+    -fx-padding: 12 0 0 0;
+    -fx-border-color: -ink-border transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+}
+
+.trade-estimate {
+    -fx-text-fill: -ink-muted;
+    -fx-font-size: 13px;
+    -fx-font-family: "Consolas", "Menlo", monospace;
+}
+
+.trade-message {
+    -fx-font-size: 12px;
+    -fx-min-height: 18;
+}
+
+.spinner .text-field {
+    -fx-background-color: -ink-bg;
+    -fx-text-fill: -ink-text;
+    -fx-font-family: "Consolas", "Menlo", monospace;
+}
+
+.spinner .increment-arrow-button,
+.spinner .decrement-arrow-button {
+    -fx-background-color: -ink-raised;
+    -fx-background-radius: 0;
+}
+
+.spinner .increment-arrow,
+.spinner .decrement-arrow {
+    -fx-background-color: -ink-muted;
+}
+
+/*
+        news ticker
+ */
+.news-ticker {
+    -fx-background-color: -ink-panel;
+    -fx-border-color: -ink-border;
+    -fx-border-width: 1;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 8 14 8 14;
+}
+
+.news-headline {
+    -fx-font-size: 12.5px;
+    -fx-text-fill: -ink-text;
+}
+
+.news-good {
+    -fx-text-fill: -ink-gain;
+}
+
+.news-bad {
+    -fx-text-fill: -ink-loss;
+}
+
+/*
+        results screen
+ */
+.result-verdict {
+    -fx-font-size: 30px;
+    -fx-font-weight: bold;
+}
+
+.result-row-label {
+    -fx-text-fill: -ink-muted;
+    -fx-font-size: 13px;
+}
+
+.result-row-value {
+    -fx-text-fill: -ink-text;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-font-family: "Consolas", "Menlo", monospace;
+}
+
+/*
+        achievements
+ */
+.achievement {
+    -fx-background-color: -ink-bg;
+    -fx-border-color: -ink-border;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 8 12 8 12;
+}
+
+.achievement-earned {
+    -fx-border-color: -ink-gain;
+}
+
+.achievement-name {
+    -fx-text-fill: -ink-text;
+    -fx-font-size: 12.5px;
+    -fx-font-weight: bold;
+}
+
+.achievement-locked .achievement-name {
+    -fx-text-fill: -ink-muted;
+}
