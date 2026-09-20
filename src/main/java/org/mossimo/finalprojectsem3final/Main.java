@@ -1,48 +1,42 @@
 package org.mossimo.finalprojectsem3final;
 
-import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
+import org.mossimo.finalprojectsem3final.app.AppContext;
+import org.mossimo.finalprojectsem3final.app.SceneManager;
+import org.mossimo.finalprojectsem3final.app.ScreenId;
 
-import java.net.URL;
+import javafx.application.Application;
+import javafx.stage.Stage;
 
 public class Main extends Application {
 
-    private static final int WIDTH = 1180;
-    private static final int HEIGHT = 760;
+    private static final int MIN_WIDTH = 1000;
+    private static final int MIN_HEIGHT = 680;
 
+    /**
+     * Called by JavaFX once the toolkit is ready
+     *
+     * @param stage the window, created and handed over by JavaFX
+     */
     @Override
-    public void start(Stage stage) throws Exception {
+    public void start(Stage stage) {
 
-        // Find the layout on the classpath
-        URL layout = getClass().getResource("/org/mossimo/finalprojectsem3final/view/main-menu.fxml");
+        // 1. The state that outlives any single screen
+        AppContext context = new AppContext();
 
-        if (layout == null) {
-            // The most common JavaFX setup mistake gets a real message
-            // rather than a bare NullPointerException
-            throw new IllegalStateException(
-                    "Could not find /org/mossimo/finalprojectsem3final/view/main-menu.fxml on the classpath.\n"
-                            + "  Expected file: src/main/resources/org/mossimo/finalprojectsem3final/view/main-menu.fxml\n"
-                            + "  If it is there, run 'mvn clean compile' so Maven copies it.");
-        }
+        // 2. The navigator
+        // Its constructor registers itself on the context, so
+        // every controller can navigate without holding the Stage directly
+        SceneManager sceneManager = new SceneManager(stage, context);
 
-        Parent root = FXMLLoader.load(layout);
-        Scene scene = new Scene(root, WIDTH, HEIGHT);
+        // 3. A minimum size, so the window cannot be dragged small enough that
+        // the layout collapses
+        stage.setMinWidth(MIN_WIDTH);
+        stage.setMinHeight(MIN_HEIGHT);
 
-        // The stylesheet is attached to the SCENE, so every control inside it
-        // inherits the theme
-        URL stylesheet = getClass().getResource("org/mossimo/finalprojectsem3final/css/base.css");
-        if (stylesheet != null) {
-            scene.getStylesheets().add(stylesheet.toExternalForm());
-        }
-
-        stage.setTitle("StockSim");
-        stage.setScene(scene);
-
-        stage.setMinWidth(1000);
-        stage.setMinHeight(680);
+        // 4. Show the first screen
+        // This call builds the Scene and attaches the
+        // stylesheets, because it is the first one
+        sceneManager.show(ScreenId.MAIN_MENU);
 
         stage.show();
     }
