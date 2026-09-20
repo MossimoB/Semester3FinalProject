@@ -1,5 +1,8 @@
 package org.mossimo.finalprojectsem3final.controller;
 
+import org.mossimo.finalprojectsem3final.app.AppContext;
+import org.mossimo.finalprojectsem3final.app.SceneManager;
+import org.mossimo.finalprojectsem3final.app.ScreenId;
 import org.mossimo.finalprojectsem3final.model.Difficulty;
 import org.mossimo.finalprojectsem3final.util.Formatters;
 
@@ -12,7 +15,7 @@ import javafx.scene.control.Label;
 
 import java.util.Arrays;
 
-public class MainMenuController {
+public class MainMenuController implements SceneManager.ScreenController {
 
     /*
             fxml fields
@@ -28,11 +31,13 @@ public class MainMenuController {
     @FXML private Button settingsButton;
     @FXML private Button aboutButton;
 
+    private AppContext context;
+
     /**
      * Called by JavaFX once the FXML has loaded and the fields above are filled
      *
-     * The method must be named exactly {@code initialize} and annotated
-     * {@code @FXML}. JavaFX finds it by name; nothing calls it directly
+     * The method must be named exactly {initialize} and annotated {@FXML}
+     * JavaFX finds it by name, nothing calls it directly
      */
     @FXML
     private void initialize() {
@@ -45,19 +50,27 @@ public class MainMenuController {
         difficultyCombo.valueProperty().addListener(
                 (observable, oldValue, newValue) -> showDifficultyDetails(newValue));
 
-        // Setting the value fires the listener above, which fills in both
-        // labels. Doing it this way means the startup path and the
-        // player-changed-it path run exactly the same code.
-        difficultyCombo.setValue(Difficulty.NORMAL);
+        newGameButton.setDisable(false);
 
         // Everything that needs a screen that does not exist yet is disabled
         // A dead button tells teammates the feature is coming; a missing one
         // makes them think the application is unfinished
-        newGameButton.setDisable(true);
         loadGameButton.setDisable(true);
         highScoresButton.setDisable(true);
         settingsButton.setDisable(true);
         aboutButton.setDisable(true);
+    }
+
+    /**
+     * Runs after the FXML has loaded, once the context exists
+     *
+     * Setting the value fires the listener registered in
+     * {initialize()}, which fills in both labels for free
+     */
+    @Override
+    public void init(AppContext context) {
+        this.context = context;
+        difficultyCombo.setValue(context.getSelectedDifficulty());
     }
 
     /**
@@ -79,6 +92,15 @@ public class MainMenuController {
                 Formatters.wholeMoney(difficulty.getTargetValue()),
                 Formatters.percent(difficulty.getRequiredGainPercent()),
                 difficulty.getTotalDays()));
+
+        // Remember the choice, so the dashboard and the next visit to this
+        // screen both agree with what the player picked
+        //
+        // The null check matters: this method runs from the listener, which can
+        // fire during initialize() before init() has handed over the context
+        if (context != null) {
+            context.setSelectedDifficulty(difficulty);
+        }
     }
 
     /*
@@ -88,6 +110,7 @@ public class MainMenuController {
     // This will open the dashboard
     @FXML
     private void onNewGame() {
+        context.show(ScreenId.DASHBOARD);
     }
 
     // This will load a saved game
