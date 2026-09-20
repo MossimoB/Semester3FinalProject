@@ -19,7 +19,7 @@ public class AppContext {
      */
     private SceneManager sceneManager;
 
-    public Difficulty getSelecteDifficulty() {
+    public Difficulty getSelectedDifficulty() {
         return selectedDifficulty;
     }
 
