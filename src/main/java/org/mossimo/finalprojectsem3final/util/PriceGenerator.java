@@ -93,4 +93,61 @@ public class PriceGenerator {
             supporting methods
      */
 
+    /**
+     * Applies a one-off shock to a stock, ignoring volatility and trend
+     *
+     * Used by news events: "NovaTech announces a breakthrough"
+     * becomes {applyShock(novaTech, 8.5)}
+     *
+     * @param stock   the stock to shock
+     * @param percent e.g. {8.5} for +8.5%, {-6.2} for a drop
+     */
+    public void applyShock(Stock stock, double percent) {
+        double newPrice = stock.getCurrentPrice() * (1 + percent / 100.0);
+        stock.setPrice(newPrice);
+    }
+
+    /**
+     * A uniformly random double in the range [min, max)
+     *
+     * Used to size an event: a "Product Launch" is defined as
+     * +5% to +10%, which becomes {randomBetween(5, 10)}
+     */
+    public double randomBetween(double min, double max) {
+        return min + random.nextDouble() * (max - min);
+    }
+
+    /**
+     * Picks a random item from a list, or {null} if the list is empty
+     */
+    public <T> T pickRandom(java.util.List<T> items) {
+        if (items == null || items.isEmpty()) {
+            return null;
+        }
+        return items.get(random.nextInt(items.size()));
+    }
+
+    /**
+     * Returns true with the given probability
+     *
+     * {rollChance(0.15)} is true about 15% of the time
+     *
+     * @param probability 0.0 means never, 1.0 means always
+     */
+    public boolean rollChance(double probability) {
+        return random.nextDouble() < probability;
+    }
+
+    /**
+     * Squeezes a value into the range [{-MAX_CHANGE_PER_TICK},
+     * {+MAX_CHANGE_PER_TICK}]
+     */
+    static double clamp(double fractionalChange) {
+        return Math.max(-MAX_CHANGE_PER_TICK,
+                Math.min(MAX_CHANGE_PER_TICK, fractionalChange));
+    }
+
+    public Random getRandom() {
+        return random;
+    }
 }
