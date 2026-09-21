@@ -4,6 +4,7 @@ import org.mossimo.finalprojectsem3final.model.Stock;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mossimo.finalprojectsem3final.util.PriceGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,4 +36,24 @@ class PriceGeneratorTest {
     /*
             group 1 - reproducibility
      */
+    @Test
+    @DisplayName("the same seed produces exactly the same market")
+    void sameSeed_producesSameSequence() {
+        PriceGenerator first = new PriceGenerator(42L);
+        PriceGenerator second = new PriceGenerator(42L);
+
+        Stock stockA = volatileStock();
+        Stock stockB = volatileStock();
+
+        for (int i = 0; i < 50; i++) {
+            first.tick(stockA);
+            second.tick(stockB);
+        }
+
+        assertEquals(stockA.getCurrentPrice(), stockB.getCurrentPrice(), TOLERANCE,
+                "two generators with seed 42 must produce identical prices");
+
+        assertEquals(stockA.getPriceHistory(), stockB.getPriceHistory(),
+                "the entire history must match, not just the final price");
+    }
 }
