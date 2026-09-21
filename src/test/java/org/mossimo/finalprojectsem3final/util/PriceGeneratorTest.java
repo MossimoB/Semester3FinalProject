@@ -1,4 +1,4 @@
-package org.mossimo.finalprojectsem3final.model;
+package org.mossimo.finalprojectsem3final.util;
 
 import org.mossimo.finalprojectsem3final.model.Stock;
 
