@@ -104,4 +104,139 @@ class MarketTest {
     /*
             group 2 - what tick does
      */
+    @Test
+    @DisplayName("tick moves every stock, not just the first")
+    void tick_movesEveryStock() {
+        Market market = defaultMarket();
+
+        List<Double> before = market.getStocks().stream()
+                .map(Stock::getCurrentPrice)
+                .toList();
+
+        market.tick();
+
+        List<Stock> after = market.getStocks();
+
+        for (int i = 0; i < after.size(); i++) {
+            assertEquals(2, after.get(i).getHistorySize(),
+                    after.get(i).getSymbol() + " should have opening price + 1 tick");
+
+            // With real volatility, landing on exactly the same price to the
+            // cent would be a one in a million coincidence
+            // If this fails for every stock, tick() is not calling the generator
+            assertNotEqualsWithinCent(before.get(i), after.get(i).getCurrentPrice(),
+                    after.get(i).getSymbol() + " did not move");
+        }
+    }
+
+    @Test
+    @DisplayName("tick returns the change applied to each stock, in order")
+    void tick_returnsChangesInOrder() {
+        Market market = predictableMarket();
+
+        List<Double> changes = market.tick();
+
+        assertEquals(2, changes.size(),
+                "one change per company");
+
+        // RisingCo has trend +0.10 and zero volatility, so exactly +10%
+        assertEquals(10.0, changes.get(0), TOLERANCE,
+                "first entry should be RisingCo's change");
+
+        // FallingCo has trend -0.05 and zero volatility, so exactly -5%
+        assertEquals(-5.0, changes.get(1), TOLERANCE,
+                "second entry should be FallingCo's change");
+
+        // The order matches getStocks()
+        assertEquals("UP", market.getStocks().get(0).getSymbol());
+        assertEquals("DN", market.getStocks().get(1).getSymbol());
+    }
+
+    /*
+            group 3 - lookups and statistics
+     */
+    @Test
+    @DisplayName("findBySymbol finds a real company and reports a missing one")
+    void findBySymbol_findsAndMisses() {
+        Market market = defaultMarket();
+
+        Optional<Stock> found = market.findBySymbol("QAI");
+        assertTrue(found.isPresent(), "QAI is in the default market");
+        assertEquals("QuantumAI", found.get().getCompanyName());
+
+        Optional<Stock> missing = market.findBySymbol("NOPE");
+        assertTrue(missing.isEmpty(),
+                "a symbol that does not exist must come back empty, not null");
+
+        // Optional forces the caller to deal with it. Calling get() on an empty
+        // Optional throws immediately and loudly, instead of handing back null
+        // that fails three screens later
+        assertThrows(java.util.NoSuchElementException.class, missing::get);
+    }
+
+    @Test
+    @DisplayName("Best and worst performers compare percentage, not price")
+    void bestAndWorstPerformer_comparePercentageNotPrice() {
+        Market market = new Market(new PriceGenerator(1L));
+
+        // ExpensiveCo is worth far more per share, but barely grows
+        market.addStock(new Stock("EXP", "ExpensiveCo", "Testing", "High price, low growth.",
+                500.00, 0.0, 0.01));      // +1% per tick
+        // CheapCo costs almost nothing, but grows fast
+        market.addStock(new Stock("CHP", "CheapCo", "Testing", "Low price, high growth.",
+                10.00, 0.0, 0.08));       // +8% per tick
+        market.addStock(new Stock("BAD", "SinkingCo", "Testing", "Going down.",
+                50.00, 0.0, -0.04));      // -4% per tick
+
+        for (int i = 0; i < 10; i++) {
+            market.tick();
+        }
+
+        // CheapCo is worth about $21 and ExpensiveCo about $552, but CheapCo has
+        // risen 116% against ExpensiveCo's 10%. Percentage is what matters
+        assertEquals("CHP", market.getBestPerformer().orElseThrow().getSymbol(),
+                "the best performer is the biggest riser, not the priciest share");
+
+        assertEquals("BAD", market.getWorstPerformer().orElseThrow().getSymbol(),
+                "the worst performer is the biggest faller");
+    }
+
+    @Test
+    @DisplayName("The market index is the average total change across companies")
+    void getMarketIndex_averagesTotalPercentChange() {
+        Market market = new Market(new PriceGenerator(1L));
+
+        market.addStock(new Stock("A", "AlphaCo", "Testing", "Up.",
+                100.00, 0.0, 0.10));    // +10% per tick
+        market.addStock(new Stock("B", "BetaCo", "Testing", "Down.",
+                100.00, 0.0, -0.10));   // -10% per tick
+
+        // A brand new market has not moved so the index is flat
+        assertEquals(0.0, market.getMarketIndex(), TOLERANCE,
+                "before any tick the index should be 0%");
+
+        market.tick();
+
+        // AlphaCo is at 110 (+10%), BetaCo at 90 (-10%). Average: 0%
+        assertEquals(0.0, market.getMarketIndex(), TOLERANCE,
+                "+10% and -10% average out to a flat market");
+
+        assertEquals(0.0, market.getLastTickAverageChange(), TOLERANCE,
+                "the same is true of the last tick alone");
+
+        market.tick();
+
+        // AlphaCo 121 (+21%), BetaCo 81 (-19%). Average: +1%
+        // The asymmetry is real: compounding gains outrun compounding losses
+        assertEquals(1.0, market.getMarketIndex(), 0.01,
+                "after two ticks, compounding pushes the index slightly positive");
+    }
+
+    /*
+            helpers
+     */
+    /** Asserts two prices differ by at least a cent */
+    private void assertNotEqualsWithinCent(double expected, double actual, String message) {
+        assertTrue(Math.abs(expected - actual) > 0.01, message);
+    }
 }
