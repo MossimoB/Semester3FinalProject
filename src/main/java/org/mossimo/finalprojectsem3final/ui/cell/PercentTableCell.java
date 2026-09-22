@@ -27,4 +27,30 @@ public class PercentTableCell<S> extends TableCell<S, Double> {
     public PercentTableCell() {
         this(false);
     }
+
+    @Override
+    protected void updateItem(Double value, boolean empty) {
+        super.updateItem(value, empty);
+
+        // Cells are reused as the table scrolls, so any previous colour has to
+        // be stripped before a new one is applied. See MoneyTableCell.
+        getStyleClass().removeAll("gain", "loss", "neutral");
+
+        if (empty || value == null) {
+            setText(null);
+            return;
+        }
+
+        String text = Formatters.percent(value);
+
+        if (showArrow) {
+            // A redundant cue on purpose because colour should never be
+            // the ONLY way information is conveyed
+            String arrow = value > 0 ? "▲ " : value < 0 ? "▼ " : "  ";
+            text = arrow + text;
+        }
+
+        setText(text);
+        getStyleClass().add(Formatters.signClass(value));
+    }
 }
