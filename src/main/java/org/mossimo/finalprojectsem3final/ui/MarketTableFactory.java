@@ -45,7 +45,9 @@ public class MarketTableFactory {
         // receives the whole row and returns the one piece it should show,
         // wrapped in a property because that is what TableView expects.
         symbol.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getSymbol()));
-        symbo].add("mono");
+        symbol.setCellFactory(column -> {
+            TableCell<Stock, String> cell = plainTextCell();
+            cell.getStyleClass().add("mono");
             return cell;
         });
 
@@ -62,7 +64,9 @@ public class MarketTableFactory {
          */
         TableColumn<Stock, Double> price = new TableColumn<>("Price");
         price.setPrefWidth(86);
-        price.ctProperty<>(cell.getValue().getCurrentPrice()));
+        price.setStyle(RIGHT_ALIGNED_HEADER);
+        price.setCellValueFactory(cell ->
+                new SimpleObjectProperty<>(cell.getValue().getCurrentPrice()));
         price.setCellFactory(column -> new MoneyTableCell<>(false));
 
         /*
@@ -82,7 +86,8 @@ public class MarketTableFactory {
     TableColumn<Stock, Double> overall = new TableColumn<>("Overall");
         overall.setPrefWidth(84);
         overall.setStyle(RIGHT_ALIGNED_HEADER);
-        ov<>(cell.getValue().getTotalPercentChange()));
+        overall.setCellValueFactory(cell ->
+            new SimpleObjectProperty<>(cell.getValue().getTotalPercentChange()));
         overall.setCellFactory(column -> new PercentTableCell<>(false));
 
         table.getColumns().addAll(symbol, company, price, change, overall);
@@ -100,7 +105,7 @@ public class MarketTableFactory {
      * value for row 3 might be handed empty row 40. Clearing it is not optional
      * because if we skip it, then stale text floats in the blank area below the last row
      */
-    private static <S> String> plainTextCell() {
+    private static <S> TableCell<S, String> plainTextCell() {
         return new TableCell<>() {
             @Override
             protected void updateItem(String text, boolean empty) {
