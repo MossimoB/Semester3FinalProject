@@ -92,7 +92,7 @@ public class Market {
         return market;
     }
 
-    private void addStock(Stock stock) {
+    public void addStock(Stock stock) {
         stocks.add(stock);
     }
 
