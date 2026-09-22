@@ -37,4 +37,34 @@ public class MoneyTableCell<S> extends TableCell<S, Double> {
         this(false);
     }
 
+    /**
+     * Called by JavaFX whenever this cell needs redrawing
+     *
+     * Two rules that are easy to get wrong:
+     *
+     *
+     *   Always call {super.updateItem} first. It does the
+     *       internal bookkeeping and skipping it produces cells that show stale
+     *       values after scrolling
+     *
+     */
+    @Override
+    protected void updateItem(Double value, boolean empty) {
+        super.updateItem(value, empty);
+
+        // Clear any colour left over from the previous row this cell displayed
+        getStyleClass().removeAll("gain", "loss", "neutral");
+
+        if (empty || value == null) {
+            setText(null);
+            return;
+        }
+
+        if (coloured) {
+            setText(Formatters.signedMoney(value));
+            getStyleClass().add(Formatters.signClass(value));
+        } else {
+            setText(Formatters.money(value));
+        }
+    }
 }
