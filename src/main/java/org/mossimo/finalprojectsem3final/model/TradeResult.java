@@ -44,4 +44,67 @@ public class TradeResult {
             convenience builders for the four rejection cases - messages player gets
      */
 
+    public static TradeResult invalidQuantity(int requested) {
+        return rejected(Failure.INVALID_QUANTITY,
+                String.format("Enter a quantity of at least 1. You asked for %d.", requested));
+    }
+
+    public static TradeResult insufficientFunds(double cost, double cashAvailable) {
+        return rejected(Failure.INSUFFICIENT_FUNDS,
+                String.format("Not enough cash. That costs $%,.2f and you have $%,.2f.",
+                        cost, cashAvailable));
+    }
+
+    public static TradeResult insufficientShares(int requested, int owned, String symbol) {
+        return rejected(Failure.INSUFFICIENT_SHARES,
+                String.format("You tried to sell %d shares of %s but you only own %d.",
+                        requested, symbol, owned));
+    }
+
+    public static TradeResult marketClosed() {
+        return rejected(Failure.MARKET_CLOSED,
+                "The simulation has finished. The market is closed.");
+    }
+
+    /*
+            getters
+     */
+    /** True if the trade actually happened */
+    public boolean isSuccessful() {
+        return successful;
+    }
+
+    /** True if the trade was rejected */
+    public boolean isRejected() {
+        return !successful;
+    }
+
+    /**
+     * Why it was rejected or {Failure#NONE} if it succeeded
+     *
+     * (Assert on this in tests)
+     */
+    public Failure getFailure() {
+        return failure;
+    }
+
+    /** A complete sentence, safe to show the player as-is. */
+    public String getMessage() {
+        return message;
+    }
+
+    /**
+     * The completed trade
+     *
+     * @return the {Transaction} or null if the trade was rejected
+     *         Always check {#isSuccessful()} first
+     */
+    public Transaction getTransaction() {
+        return transaction;
+    }
+
+    @Override
+    public String toString() {
+        return (successful ? "OK: " : "REJECTED (" + failure + "): ") + message;
+    }
 }
