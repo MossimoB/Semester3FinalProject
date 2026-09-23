@@ -17,7 +17,11 @@ class HoldingTest {
 
     @Test
     @DisplayName("A new holding owns nothing and is worth nothing")
-    void newHoling.getAverageCost(), TOLERANCE);
+    void newHolding_isEmpty() {
+        Holding holding = new Holding(stock());
+
+        assertEquals(0, holding.getShares());
+        assertEquals(0.0, holding.getAverageCost(), TOLERANCE);
         assertEquals(0.0, holding.getCurrentValue(), TOLERANCE);
         assertEquals(0.0, holding.getProfitLoss(), TOLERANCE);
 
@@ -28,7 +32,15 @@ class HoldingTest {
 
     @Test
     @DisplayName("One purchase sets the average cost to the price paid")
+    void singlePurchase_averageIsThePricePaid() {
+        Holding holding = new Holding(stock());
 
+        holding.addShares(20, 100.00);
+
+        assertEquals(20, holding.getShares());
+        assertEquals(100.00, holding.getAverageCost(), TOLERANCE);
+        assertEquals(2000.00, holding.getCostBasis(), TOLERANCE);
+        assertFalse(holding.isEmpty());
     }
 
     @Test
@@ -72,5 +84,54 @@ class HoldingTest {
         assertFalse(holding.isProfitable());
     }
 
+    @Test
+    @DisplayName("Selling does not change the average cost of what is left")
+    void removeShares_leavesAverageCostAlone() {
+        Holding holding = new Holding(stock());
 
+        holding.addShares(10, 100.00);
+        holding.addShares(30, 200.00);   // average $175
+
+        holding.removeShares(10);
+
+        assertEquals(30, holding.getShares());
+        assertEquals(175.00, holding.getAverageCost(), TOLERANCE,
+                "the 30 shares still standing still cost $175 each");
+        assertEquals(5250.00, holding.getCostBasis(), TOLERANCE, "30 x 175");
+    }
+
+    @Test
+    @DisplayName("Selling everything resets the holding to empty")
+    void removeAllShares_resetsToEmpty() {
+        Holding holding = new Holding(stock());
+
+        holding.addShares(25, 80.00);
+        holding.removeShares(25);
+
+        assertEquals(0, holding.getShares());
+        assertEquals(0.0, holding.getAverageCost(), TOLERANCE,
+                "a re-opened position must not inherit the old average");
+        assertTrue(holding.isEmpty());
+
+        // Over-selling clamps to zero rather than going negative
+        holding.addShares(5, 50.00);
+        holding.removeShares(999);
+        assertEquals(0, holding.getShares(), "shares must never go negative");
+    }
+
+    @Test
+    @DisplayName("Break-even move shows why big losses hurt so much")
+    void breakEvenMove_isBiggerThanTheLoss() {
+        Stock stock = stock();
+        Holding holding = new Holding(stock);
+
+        holding.addShares(10, 100.00);
+        stock.setPrice(80.00);           // down 20%
+
+        assertEquals(-20.00, holding.getReturnPercent(), TOLERANCE, "the position is down 20%");
+
+        // But it needs a 25% RISE from $80 to get back to $100
+        assertEquals(25.00, holding.getBreakEvenMovePercent(), TOLERANCE,
+                "a 20% loss needs a 25% gain to undo: this asymmetry is volatility drag");
+    }
 }
