@@ -92,4 +92,102 @@ public class Transaction {
         this.realisedProfit = realisedProfit;
     }
 
+    /*
+            factory methods
+     */
+    /** Records a purchase. Realised profit is always 0 on a buy */
+    public static Transaction buy(Stock stock, int shares, int day, int hour) {
+        return new Transaction(Type.BUY, stock.getSymbol(), stock.getCompanyName(),
+                shares, stock.getCurrentPrice(), day, hour, 0.0);
+    }
+
+    /** Records a sale, along with the profit or loss it locked in */
+    public static Transaction sell(Stock stock, int shares, int day, int hour,
+                                   double realisedProfit) {
+        return new Transaction(Type.SELL, stock.getSymbol(), stock.getCompanyName(),
+                shares, stock.getCurrentPrice(), day, hour, realisedProfit);
+    }
+
+    /*
+            calculations
+     */
+    /**
+     * The total money that changed hands
+     *
+     * total = shares × pricePerShare
+     *
+     * On a BUY this left the player's cash
+     * On a SELL it came back in
+     */
+    public double getTotal() {
+        return shares * pricePerShare;
+    }
+
+    /** True if this was a purchase. Used by (future) history table */
+    public boolean isBuy() {
+        return type == Type.BUY;
+    }
+
+    /** True if this sale made money. Always false for a purchase */
+    public boolean isProfitable() {
+        return type == Type.SELL && realisedProfit > 0;
+    }
+
+    /**
+     * A sortable timestamp. Day 3 at 14:00 becomes 314
+     *
+     * orderKey = day × 100 + hour
+     */
+    public int getOrderKey() {
+        return simulationDay * 100 + simulationHour;
+    }
+
+    /*
+            getters - no setters because this object never changes
+     */
+    public Type getType() {
+        return type;
+    }
+
+    public String getSymbol() {
+        return symbol;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public int getShares() {
+        return shares;
+    }
+
+    public double getPricePerShare() {
+        return pricePerShare;
+    }
+
+    public int getSimulationDay() {
+        return simulationDay;
+    }
+
+    public int getSimulationHour() {
+        return simulationHour;
+    }
+
+    public double getRealisedProfit() {
+        return realisedProfit;
+    }
+
+    /*
+            object methods
+     */
+    @Override
+    public String toString() {
+        String base = String.format("Day %2d %02d:00  %-4s %3d x %-4s @ $%8.2f = $%10.2f",
+                simulationDay, simulationHour, type, shares, symbol, pricePerShare, getTotal());
+
+        if (type == Type.SELL) {
+            base += String.format("   realised %+.2f", realisedProfit);
+        }
+        return base;
+    }
 }
