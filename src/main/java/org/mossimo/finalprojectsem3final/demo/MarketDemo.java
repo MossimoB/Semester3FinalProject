@@ -12,7 +12,6 @@ public class MarketDemo {
     /*
             settings
      */
-
     /**
      * Simulated trading hours per day. 09:00 to 16:00 inclusive is 8.
      */
@@ -133,5 +132,96 @@ public class MarketDemo {
         System.out.printf(" %s%n", pad(colour(String.format("%+.2f%%", index), index), 11));
     }
 
+    /**
+     * The closing report: who won, who lost, and by how much
+     */
+    private static void printSummary(Market market) {
+        System.out.println();
+        System.out.println(bold("  AFTER " + DAYS + " DAYS (" + (DAYS * HOURS_PER_DAY) + " ticks)"));
+        System.out.printf("  %-5s %-12s %10s %10s %11s %10s %10s%n",
+                "SYM", "COMPANY", "START", "FINAL", "CHANGE", "HIGH", "LOW");
+        System.out.println(dim("  " + "-".repeat(73)));
 
+        for (Stock stock : market.getStocks()) {
+            double change = stock.getTotalPercentChange();
+
+            // High and low are calculated here by hand
+            double high = stock.getPriceHistory().stream()
+                    .mapToDouble(Double::doubleValue).max().orElse(0);
+            double low = stock.getPriceHistory().stream()
+                    .mapToDouble(Double::doubleValue).min().orElse(0);
+
+            System.out.printf("  %-5s %-12s %10s %10s %s %10s %10s%n",
+                    stock.getSymbol(),
+                    stock.getCompanyName(),
+                    money(stock.getStartingPrice()),
+                    money(stock.getCurrentPrice()),
+                    pad(colour(String.format("%+.2f%%", change), change), 11),
+                    money(high),
+                    money(low));
+        }
+
+        System.out.println();
+
+        Stock best = market.getBestPerformer().orElseThrow();
+        Stock worst = market.getWorstPerformer().orElseThrow();
+
+        System.out.printf("  Best performer   %s  %s%n",
+                pad(best.getCompanyName(), 14),
+                colour(String.format("%+.2f%%", best.getTotalPercentChange()),
+                        best.getTotalPercentChange()));
+
+        System.out.printf("  Worst performer  %s  %s%n",
+                pad(worst.getCompanyName(), 14),
+                colour(String.format("%+.2f%%", worst.getTotalPercentChange()),
+                        worst.getTotalPercentChange()));
+
+        System.out.printf("  Market index     %s  %s%n",
+                pad("all companies", 14),
+                colour(String.format("%+.2f%%", market.getMarketIndex()),
+                        market.getMarketIndex()));
+
+        System.out.println();
+        System.out.println(dim("  Is this interesting? If every column climbed steadily and nothing"));
+        System.out.println(dim("  surprised you, raise the volatility numbers in Market and run again."));
+        System.out.println(dim("  Tuning is cheap now and expensive in Week 9."));
+        System.out.println();
+    }
+
+    /*
+            small formatting helpers
+     */
+    /** Formats a number as dollars: 1234.5 becomes "$1,234.50" */
+    private static String money(double amount) {
+        return String.format("$%,.2f", amount);
+    }
+
+    /** Green for positive, red for negative, plain for zero */
+    private static String colour(String text, double value) {
+        if (!USE_COLOUR) {
+            return text;
+        }
+        if (value > 0) {
+            return GREEN + text + RESET;
+        }
+        if (value < 0) {
+            return RED + text + RESET;
+        }
+        return text;
+    }
+
+    private static String bold(String text) {
+        return USE_COLOUR ? BOLD + text + RESET : text;
+    }
+
+    private static String dim(String text) {
+        return USE_COLOUR ? DIM + text + RESET : text;
+    }
+
+    /** Right-aligns text in a fixed width and ignoring invisible colour codes */
+    private static String pad(String text, int width) {
+        int visibleLength = text.replaceAll("\u001B\\[[0-9;]*m", "").length();
+        int padding = Math.max(0, width - visibleLength);
+        return " ".repeat(padding) + text;
+    }
 }
