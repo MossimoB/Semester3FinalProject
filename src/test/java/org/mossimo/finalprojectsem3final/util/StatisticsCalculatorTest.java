@@ -113,5 +113,85 @@ class StatisticsCalculatorTest {
         assertEquals(0.0, StatisticsCalculator.variance(List.of(5.0)), TOLERANCE);
     }
 
+    @Test
+    @DisplayName("Coefficient of variation compares risk across different price levels")
+    void coefficientOfVariation_comparesAcrossPrices() {
+        // An expensive stock: mean 150, stdDev 15  →  10%
+        List<Double> expensive = List.of(135.0, 150.0, 165.0, 150.0);
+        // A cheap stock: mean 40, stdDev 4         →  10%
+        List<Double> cheap = List.of(36.0, 40.0, 44.0, 40.0);
 
+        // Their standard deviations are wildly different...
+        assertTrue(StatisticsCalculator.standardDeviation(expensive)
+                        > StatisticsCalculator.standardDeviation(cheap) * 3,
+                "the expensive stock moves in much bigger dollar amounts");
+
+        // ...but relative to their own price they are equally risky.
+        assertEquals(StatisticsCalculator.coefficientOfVariation(expensive),
+                StatisticsCalculator.coefficientOfVariation(cheap), 0.01,
+                "the coefficient of variation makes them directly comparable");
+    }
+
+    /*
+            extremes and change
+     */
+    @Test
+    @DisplayName("min, max, range and percentile")
+    void extremes() {
+        List<Double> values = textbook();
+
+        assertEquals(2.0, StatisticsCalculator.min(values), TOLERANCE);
+        assertEquals(9.0, StatisticsCalculator.max(values), TOLERANCE);
+        assertEquals(7.0, StatisticsCalculator.range(values), TOLERANCE, "9 - 2");
+
+        // Sorted: 2,4,4,4,5,5,7,9. Index (int)(8 × 0.5) = 4 → value 5
+        assertEquals(5.0, StatisticsCalculator.percentile(values, 0.50), TOLERANCE);
+        assertEquals(2.0, StatisticsCalculator.percentile(values, 0.0), TOLERANCE);
+
+        // Fraction 1.0 would index off the end; it must clamp, not throw
+        assertEquals(9.0, StatisticsCalculator.percentile(values, 1.0), TOLERANCE);
+
+        assertEquals(0.0, StatisticsCalculator.range(List.of()), TOLERANCE);
+    }
+
+    @Test
+    @DisplayName("Moving average smooths the last N values")
+    void movingAverage_smoothsRecentValues() {
+        List<Double> prices = List.of(10.0, 20.0, 30.0, 40.0, 50.0);
+
+        // Last 3: (30 + 40 + 50) / 3 = 40
+        assertEquals(40.0, StatisticsCalculator.movingAverage(prices, 3), TOLERANCE);
+
+        // A window larger than the data averages everything available, so the
+        // line can start drawing from the very first tick
+        assertEquals(30.0, StatisticsCalculator.movingAverage(prices, 99), TOLERANCE,
+                "(10+20+30+40+50)/5 = 30");
+
+        List<Double> series = StatisticsCalculator.movingAverageSeries(prices, 3);
+        assertEquals(5, series.size(), "one point per input value, for drawing");
+        assertEquals(10.0, series.get(0), TOLERANCE, "first point averages just itself");
+        assertEquals(15.0, series.get(1), TOLERANCE, "(10+20)/2");
+        assertEquals(20.0, series.get(2), TOLERANCE, "(10+20+30)/3");
+        assertEquals(40.0, series.get(4), TOLERANCE, "(30+40+50)/3");
+    }
+
+    @Test
+    @DisplayName("Max drawdown finds the worst peak-to-trough fall")
+    void maxDrawdown_findsTheWorstFall() {
+        // Rises to 200, crashes to 80, recovers to 150
+        // Worst fall: from the 200 peak down to 80  →  (200-80)/200 = 60%
+        List<Double> boomAndBust = List.of(100.0, 150.0, 200.0, 120.0, 80.0, 110.0, 150.0);
+
+        assertEquals(60.0, StatisticsCalculator.maxDrawdownPercent(boomAndBust), TOLERANCE);
+
+        // A price that only ever rises has no drawdown at all, however volatile it looks
+        // This is why drawdown is a better measure of how frightening
+        // an investment is than standard deviation
+        List<Double> onlyUp = List.of(10.0, 40.0, 90.0, 200.0);
+        assertEquals(0.0, StatisticsCalculator.maxDrawdownPercent(onlyUp), TOLERANCE);
+        assertTrue(StatisticsCalculator.standardDeviation(onlyUp) > 0,
+                "but it still has a large standard deviation");
+
+        assertEquals(0.0, StatisticsCalculator.maxDrawdownPercent(List.of(5.0)), TOLERANCE);
+    }
 }
