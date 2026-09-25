@@ -149,5 +149,77 @@ public final class StatisticsCalculator {
     /*
             change over time
      */
+    /**
+     * Percentage change between two values
+     *
+     * percentChange = (newValue - oldValue) / oldValue × 100
+     */
+    public static double percentChange(double oldValue, double newValue) {
+        if (oldValue == 0) {
+            return 0;
+        }
+        return (newValue - oldValue) / oldValue * 100.0;
+    }
 
+    /** The simple moving average over the last {window} values */
+    public static double movingAverage(List<Double> values, int window) {
+        if (values == null || values.isEmpty() || window <= 0) {
+            return 0;
+        }
+        int from = Math.max(0, values.size() - window);
+        return mean(values.subList(from, values.size()));
+    }
+
+    /**
+     * A moving average at every point, for drawing as a line
+     *
+     * @return a list the same length as the input
+     */
+    public static List<Double> movingAverageSeries(List<Double> values, int window) {
+        List<Double> series = new ArrayList<>();
+        if (values == null) {
+            return series;
+        }
+        for (int i = 0; i < values.size(); i++) {
+            int from = Math.max(0, i - window + 1);
+            series.add(mean(values.subList(from, i + 1)));
+        }
+        return series;
+    }
+
+    /**
+     * The largest peak-to-trough fall in the data, as a positive percentage
+     *
+     * Known as maximum drawdown
+     * It answers "what is the worst loss someone could have suffered by buying at the wrong moment and selling at
+     * the worst moment afterwards?"
+     *
+     * This is a better measure of how frightening an investment is than
+     * standard deviation, because it only counts downside
+     * A stock that only ever rises has a high standard deviation and zero drawdown
+     *
+     * The algorithm walks forward once, tracking the highest point seen so
+     * far and the biggest fall from it. One pass, no nested loop
+     */
+    public static double maxDrawdownPercent(List<Double> values) {
+        if (values == null || values.size() < 2) {
+            return 0;
+        }
+
+        double peak = values.get(0);
+        double worstFall = 0;
+
+        for (double value : values) {
+            if (value > peak) {
+                peak = value;
+            }
+            if (peak > 0) {
+                double fall = (peak - value) / peak * 100.0;
+                if (fall > worstFall) {
+                    worstFall = fall;
+                }
+            }
+        }
+        return worstFall;
+    }
 }
