@@ -1,0 +1,143 @@
+/*
+        chart frame
+ */
+.chart {
+    -fx-background-color: transparent;
+    -fx-padding: 4;
+}
+
+/* Removes the chart's built-in title space, which we do not use */
+.chart-title {
+    -fx-text-fill: -ink-muted;
+    -fx-font-size: 12px;
+}
+
+.chart-plot-background {
+    -fx-background-color: -ink-bg;
+}
+
+.chart-content {
+    -fx-padding: 4;
+}
+
+/* The chart's own border. Off, because the panel around it already has one */
+.chart .chart-plot-background {
+    -fx-border-color: -ink-border;
+    -fx-border-width: 1;
+}
+
+/*
+        grid lines
+ */
+.chart-horizontal-grid-lines {
+    -fx-stroke: -ink-border;
+    -fx-stroke-dash-array: 2 4;
+}
+
+.chart-vertical-grid-lines {
+    -fx-stroke: transparent;
+}
+
+/* The heavier line drawn at zero. Not meaningful for prices, so hidden. */
+.chart-horizontal-zero-line,
+.chart-vertical-zero-line {
+    -fx-stroke: transparent;
+}
+
+/* The alternating shaded bands JavaFX draws behind the plot by default. */
+.chart-alternative-row-fill,
+.chart-alternative-column-fill {
+    -fx-fill: transparent;
+    -fx-stroke: transparent;
+}
+
+/*
+        axes
+ */
+.axis {
+    -fx-tick-label-fill: -ink-muted;
+    -fx-tick-label-font-size: 10px;
+    -fx-tick-label-font-family: "Consolas", "Menlo", monospace;
+    -fx-tick-mark-visible: false;
+    -fx-minor-tick-visible: false;
+}
+
+.axis:bottom {
+    -fx-border-color: -ink-border transparent transparent transparent;
+}
+
+.axis:left {
+    -fx-border-color: transparent -ink-border transparent transparent;
+}
+
+.axis-label {
+    -fx-text-fill: -ink-muted;
+    -fx-font-size: 10px;
+}
+
+/*
+        series
+
+        series 0 = the price line, in the accent blue.
+        series 1 = the moving average, dashed and dimmer
+        so it reads as a guide rather than as data
+ */
+.default-color0.chart-series-line {
+    -fx-stroke: -ink-accent;
+    -fx-stroke-width: 2px;
+}
+
+.default-color1.chart-series-line {
+    -fx-stroke: #d29922;
+    -fx-stroke-width: 1.4px;
+    -fx-stroke-dash-array: 5 4;
+}
+
+.default-color2.chart-series-line {
+    -fx-stroke: -ink-gain;
+    -fx-stroke-width: 2px;
+}
+
+/* Data point markers: hidden on the price line */
+.chart-line-symbol {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0;
+    -fx-padding: 0;
+}
+
+.chart-with-symbols .default-color2.chart-line-symbol {
+    -fx-background-color: -ink-gain, -ink-bg;
+    -fx-background-radius: 4px;
+    -fx-padding: 3px;
+}
+
+/*
+        legend
+ */
+
+.chart-legend {
+    -fx-background-color: transparent;
+    -fx-padding: 2 0 0 0;
+}
+
+.chart-legend-item {
+    -fx-text-fill: -ink-muted;
+    -fx-font-size: 10.5px;
+}
+
+/*
+        chart panel around it
+ */
+.chart-panel {
+    -fx-background-color: -ink-panel;
+    -fx-border-color: -ink-border;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 6;
+}
+
+.chart-empty-message {
+    -fx-text-fill: -ink-muted;
+    -fx-font-size: 12px;
+}
