@@ -63,5 +63,86 @@ public class PriceChartBuilder {
         chart.getData().add(averageSeries);
     }
 
+    /** The chart node, to be put into a layout */
+    public LineChart<Number, Number> getChart() {
+        return chart;
+    }
 
+    /*
+            drawing
+     */
+    /**
+     * Shows a company's chart, redrawing completely only if it changed
+     */
+    public void show(Stock stock) {
+        if (stock == null) {
+            clear();
+            return;
+        }
+
+        if (!stock.getSymbol().equals(currentSymbol)) {
+            currentSymbol = stock.getSymbol();
+            redraw(stock);
+        } else {
+            appendLatest(stock);
+        }
+    }
+
+    /** Rebuilds both lines from scratch. Used when the selection changes */
+    private void redraw(Stock stock) {
+        priceSeries.getData().clear();
+        averageSeries.getData().clear();
+
+        List<Double> history = stock.getPriceHistory();
+        List<Double> averages = StatisticsCalculator.movingAverageSeries(history, MOVING_AVERAGE_WINDOW);
+
+        for (int i = 0; i < history.size(); i++) {
+            priceSeries.getData().add(new XYChart.Data<>(i, history.get(i)));
+            averageSeries.getData().add(new XYChart.Data<>(i, averages.get(i)));
+        }
+
+        yAxis.setLabel("Price  ·  " + stock.getSymbol());
+    }
+
+    /**
+     * Adds only the points that are new since the last call
+     */
+    private void appendLatest(Stock stock) {
+        List<Double> history = stock.getPriceHistory();
+        int drawn = priceSeries.getData().size();
+
+        if (drawn == history.size()) {
+            return;                       // nothing new, the common case
+        }
+
+        if (drawn > history.size()) {
+            // The history got shorter, which only happens after a Reset or a
+            // loaded save
+            // Start over
+            redraw(stock);
+            return;
+        }
+
+        List<Double> averages = StatisticsCalculator.movingAverageSeries(history, MOVING_AVERAGE_WINDOW);
+
+        for (int i = drawn; i < history.size(); i++) {
+            priceSeries.getData().add(new XYChart.Data<>(i, history.get(i)));
+            averageSeries.getData().add(new XYChart.Data<>(i, averages.get(i)));
+        }
+    }
+
+    /** Empties the chart
+     * Used when nothing is selected */
+    public void clear() {
+        priceSeries.getData().clear();
+        averageSeries.getData().clear();
+        currentSymbol = null;
+        yAxis.setLabel("Price");
+    }
+
+    /** Forces a full redraw on the next {#show}
+     * Used after a Reset */
+    public void invalidate() {
+        currentSymbol = null;
+    }
 }
