@@ -65,6 +65,60 @@ public class StatisticsPanel extends GridPane {
     }
 
     private void addStat(int column, int row, String caption, Label valueLabel, String explanation) {
+        Label captionLabel = new Label(caption);
+        captionLabel.getStyleClass().add("stat-label");
 
+        valueLabel.getStyleClass().addAll("stat-value", "mono");
+
+        Tooltip tooltip = new Tooltip(explanation);
+        tooltip.setWrapText(true);
+        tooltip.setMaxWidth(280);
+        // The default delay is nearly a second, which feels broken. Tooltips
+        // that explain a term should appear as soon as the player looks.
+        tooltip.setShowDelay(Duration.millis(250));
+
+        Tooltip.install(captionLabel, tooltip);
+        Tooltip.install(valueLabel, tooltip);
+
+        javafx.scene.layout.VBox cell = new javafx.scene.layout.VBox(1, captionLabel, valueLabel);
+        add(cell, column, row);
+    }
+
+    /**
+     * Recalculates every statistic from the company's price history.
+     */
+    public void update(Stock stock) {
+        if (stock == null) {
+            clear();
+            return;
+        }
+
+        List<Double> history = stock.getPriceHistory();
+
+        highValue.setText(Formatters.money(StatisticsCalculator.max(history)));
+        lowValue.setText(Formatters.money(StatisticsCalculator.min(history)));
+        meanValue.setText(Formatters.money(StatisticsCalculator.mean(history)));
+        medianValue.setText(Formatters.money(StatisticsCalculator.median(history)));
+        stdDevValue.setText(Formatters.money(StatisticsCalculator.standardDeviation(history)));
+        rangeValue.setText(Formatters.money(StatisticsCalculator.range(history)));
+
+        cvValue.setText(Formatters.plainPercent(
+                StatisticsCalculator.coefficientOfVariation(history)));
+
+        double drawdown = StatisticsCalculator.maxDrawdownPercent(history);
+        drawdownValue.setText(Formatters.plainPercent(drawdown));
+
+        // A drawdown over 25% is worth flagging: it means this company has
+        // already lost a quarter of its value once
+        drawdownValue.getStyleClass().removeAll("loss", "warning", "neutral");
+        drawdownValue.getStyleClass().add(
+                drawdown > 25 ? "loss" : drawdown > 10 ? "warning" : "neutral");
+    }
+
+    private void clear() {
+        for (Label label : List.of(highValue, lowValue, meanValue, medianValue,
+                stdDevValue, cvValue, drawdownValue, rangeValue)) {
+            label.setText("—");
+        }
     }
 }
