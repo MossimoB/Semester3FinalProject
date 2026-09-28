@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import org.mossimo.finalprojectsem3final.ui.StatisticsPanel?>
+<?import org.mossimo.finalprojectsem3final.ui.SummaryBar?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
 <!--
@@ -49,6 +53,8 @@ after it to the right-hand end of an HBox -->
                 <Button fx:id="playPauseButton" text="Play" onAction="#onPlayPause"
                         styleClass="button-primary" prefWidth="86"/>
                 <Button fx:id="speedButton" text="1x" onAction="#onSpeed" prefWidth="56"/>
+                <Button fx:id="portfolioButton" text="Portfolio" onAction="#onPortfolio"/>
+                <Button fx:id="saveButton" text="Save" onAction="#onSave"/>
                 <Button fx:id="menuButton" text="Menu" onAction="#onMenu"
                         styleClass="button-ghost"/>
             </HBox>
@@ -67,7 +73,7 @@ after it to the right-hand end of an HBox -->
             <!-- By default, a JavaFX Control reports its maximum size
              as equal to its preferred size, so a ProgressBar stops at ~150px
              no matter how wide the window get. Raising the cap to infinity
-             removes that stop, and the VBox (via fillWidth) expands it edege to edge -->
+             removes that stop, and the VBox (via fillWidth) expands it edge to edge -->
 
             <!-- <Vbox.margin><Insets top="10"/></VBox.margin> -->
             <!-- This is a static property -->
@@ -92,24 +98,69 @@ after it to the right-hand end of an HBox -->
         Center
 -->
     <center>
-        <VBox spacing="8">
+        <VBox>
             <padding>
-                <Insets top="14" right="18" bottom="18" left="18"/>
+                <Insets top="6" right="18" bottom="18" left="18"/>
             </padding>
 
-            <Label text="MARKET" styleClass="section-label"/>
-            <Label fx:id="placeholderLabel" text="The market arrives soon."
-                   styleClass="muted-text"/>
+            <SummaryBar fx:id="summaryBar"/>
 
-            <Label fx:id="marketIndexLabel" text="" styleClass="muted-text, mono"/>
+            <SplitPane fx:id="splitPane" dividerPositions="0.47" VBox.vgrow="ALWAYS"
+                       styleClass="dashboard-split">
 
-<!--
-                 ADD THE PRICE CHART AND STATISTICS HERE
-                 ADD THE TRADE ROW HERE
-                 ADD THE NEWS TICKER HERE
-                 ADD THE GRID OF SMALL CHARTS HERE
--->
+                <!-- the market -->
+                <VBox spacing="8">
+                    <padding>
+                        <Insets top="0" right="10" bottom="0" left="0"/>
+                    </padding>
 
+                    <Label text="MARKET" styleClass="section-label"/>
+
+                    <TableView fx:id="marketTable" VBox.vgrow="ALWAYS"/>
+
+                    <Label fx:id="marketIndexLabel" text="" styleClass="muted-text, mono"/>
+
+                    <!-- ADD THE GRID OF SMALL CHARTS HERE -->
+                </VBox>
+
+                <!-- the selected company -->
+                <VBox spacing="8">
+                    <padding>
+                        <Insets top="0" right="0" bottom="0" left="10"/>
+                    </padding>
+
+                    <Label text="SELECTED COMPANY" styleClass="section-label"/>
+
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label fx:id="detailNameLabel" text="Select a company"
+                               styleClass="detail-name"/>
+                        <Label fx:id="riskBadge" text="" styleClass="risk-badge"/>
+                    </HBox>
+
+                    <Label fx:id="detailIndustryLabel" text="" styleClass="detail-industry"/>
+
+                    <HBox alignment="BASELINE_LEFT" spacing="12">
+                        <Label fx:id="detailPriceLabel" text="—" styleClass="detail-price"/>
+                        <Label fx:id="detailChangeLabel" text="" styleClass="detail-change"/>
+                    </HBox>
+
+                    <Label fx:id="detailDescriptionLabel" text="" wrapText="true"
+                           styleClass="detail-description"/>
+
+                    <!-- THE PRICE CHART -->
+                    <StackPane fx:id="chartContainer" minHeight="200" VBox.vgrow="ALWAYS"
+                               styleClass="chart-panel"/>
+
+                    <!-- THE STATISTICS -->
+                    <StatisticsPanel fx:id="statisticsPanel"/>
+
+                    <Region VBox.vgrow="ALWAYS"/>
+
+                    <!--
+                         ADD THE TRADE ROW HERE
+                         ADD THE NEWS TICKER HERE -->
+                </VBox>
+            </SplitPane>
         </VBox>
     </center>
 </BorderPane>
