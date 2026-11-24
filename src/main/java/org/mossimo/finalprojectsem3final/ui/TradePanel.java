@@ -196,5 +196,17 @@ public class TradePanel extends VBox {
     /*
     ACCESS
      */
+    /** The quantity currently in the box, never less than 0. */
+    public int getQuantity() {
+        Integer value = quantitySpinner.getValue();
+        return value == null ? 0 : value;
+    }
 
+    public void setOnBuy(IntConsumer onBuy) {
+        this.onBuy = (onBuy == null) ? quantity -> { } : onBuy;
+    }
+
+    public void setOnSell(IntConsumer onSell) {
+        this.onSell = (onSell == null) ? quantity -> { } : onSell;
+    }
 }
