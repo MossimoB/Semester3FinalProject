@@ -83,5 +83,74 @@ public class TradeValidationTest {
     /*
     PLAYER MESSAGE
      */
+    @Test
+    @DisplayName("Rejection messages name the actual numbers")
+    void rejectionMessages_areSpecific() {
+        Game game = game();
+        Portfolio portfolio = game.getPortfolio();
+        Stock stock = game.getMarket().findBySymbol("NVT").orElseThrow();
 
+        String message = portfolio.buy(stock, 500, 1, 9).getMessage();
+
+        // "Trade failed" would be useless. The message has to say what it costs
+        // and what they have.
+        assertTrue(message.contains("50,000"),
+                "should name the cost, was: " + message);
+        assertTrue(message.contains("10,000"),
+                "should name the available cash, was: " + message);
+
+        portfolio.buy(stock, 10, 1, 9);
+        String sellMessage = portfolio.sell(stock, 25, 1, 10).getMessage();
+
+        assertTrue(sellMessage.contains("25") && sellMessage.contains("10"),
+                "should name both the requested and owned amounts, was: " + sellMessage);
+        assertTrue(sellMessage.contains("NVT"), "should name the company");
+    }
+
+    @Test
+    @DisplayName("A successful trade carries a Transaction, a rejected one does not")
+    void successCarriesTheTransaction() {
+        Game game = game();
+        Portfolio portfolio = game.getPortfolio();
+        Stock stock = game.getMarket().findBySymbol("NVT").orElseThrow();
+
+        TradeResult good = portfolio.buy(stock, 10, 3, 14);
+        assertTrue(good.isSuccessful());
+        assertNotNull(good.getTransaction());
+        assertEquals(Transaction.Type.BUY, good.getTransaction().getType());
+        assertEquals(10, good.getTransaction().getShares());
+        assertEquals(3, good.getTransaction().getSimulationDay());
+        assertEquals(14, good.getTransaction().getSimulationHour());
+        assertEquals(TradeResult.Failure.NONE, good.getFailure());
+
+        TradeResult bad = portfolio.buy(stock, 999999, 3, 14);
+        assertTrue(bad.isRejected());
+        assertNull(bad.getTransaction(),
+                "there is no transaction, because nothing happened");
+    }
+
+    /*
+    MAX BUTTON
+     */
+    @Test
+    @DisplayName("getMaxAffordable never returns a quantity that would be rejected")
+    void maxAffordable_isAlwaysBuyable() {
+        Game game = game();
+        Portfolio portfolio = game.getPortfolio();
+
+        // Check against every company, including the $150 one and the $40 one.
+        for (Stock stock : game.getMarket().getStocks()) {
+            Portfolio fresh = new Portfolio(10_000.00);
+            int max = fresh.getMaxAffordable(stock);
+
+            assertTrue(fresh.buy(stock, max, 1, 9).isSuccessful(),
+                    "the Max button offered " + max + " shares of " + stock.getSymbol()
+                            + " but the trade was rejected");
+
+            // And one more share must not be affordable, or Max was too low.
+            assertEquals(TradeResult.Failure.INSUFFICIENT_FUNDS,
+                    fresh.buy(stock, 1, 1, 9).getFailure(),
+                    "Max should have spent everything it could for " + stock.getSymbol());
+        }
+    }
 }

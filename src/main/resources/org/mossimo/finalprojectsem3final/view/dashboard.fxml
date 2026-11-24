@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import org.mossimo.finalprojectsem3final.ui.StatisticsPanel?>
+<?import org.mossimo.finalprojectsem3final.ui.TradePanel?>
 <?import org.mossimo.finalprojectsem3final.ui.SummaryBar?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
@@ -14,37 +15,18 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<!--
-This FXML file will include a lot of my personal comments.
-The reason for this is that I will be trying to learn what everything does.
-I will build this file by using my personal FXML notes, as well as Google.
-
-PS the comments should help you guys understand as well!
--->
-
-<!--
-This file is the main playing screen. For now, it will render an empty frame.
--->
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="org.mossimo.finalprojectsem3final.controller.DashboardController"
             styleClass="root-pane">
 
-<!--
-        Header
-The play and speed buttons exist from now on but will not do anything
-until there is a clock for them to control
--->
     <top>
         <VBox styleClass="app-header">
-<!-- just basic HTML and inline CSS so far -->
             <HBox alignment="CENTER_LEFT" spacing="14">
                 <Label text="STOCKSIM" styleClass="app-brand"/>
 
                 <Label fx:id="difficultyLabel" text="" styleClass="app-state"/>
 
-<!-- a Region with hgrow AWAYS is the standard way to push everything
-after it to the right-hand end of an HBox -->
                 <Region HBox.hgrow="ALWAYS"/>
 
                 <Label fx:id="clockLabel" text="Day 1 / 10   09:00" styleClass="app-clock"/>
@@ -59,33 +41,6 @@ after it to the right-hand end of an HBox -->
                         styleClass="button-ghost"/>
             </HBox>
 
-<!-- How far through the ten days the player is -->
-            <!-- fx:id="progressBar" -->
-            <!-- fx:id names the node -->
-            <!-- without fx:id, the bar still renders but no Java code can reach it
-             so nothing can ever update it -->
-
-            <!-- progress="0.0" -->
-            <!-- a double ranging from 0.0 to 1.0 -->
-
-            <!-- maxWidth="Infinity" -->
-            <!-- this lets the bar grow as wide as the layout allows -->
-            <!-- By default, a JavaFX Control reports its maximum size
-             as equal to its preferred size, so a ProgressBar stops at ~150px
-             no matter how wide the window get. Raising the cap to infinity
-             removes that stop, and the VBox (via fillWidth) expands it edge to edge -->
-
-            <!-- <Vbox.margin><Insets top="10"/></VBox.margin> -->
-            <!-- This is a static property -->
-            <!-- 10px of space between the bar and whatever sits
-             above it in the VBox -->
-
-            <!-- If we were to translate this to Java rather than FXML -->
-            <!--
-             ProgressBar progressBar = new ProgressBar(0.0);
-             progressBar.setMaxWidth(Double.MAX_VALUE);
-             VBox.setMargin(progressBar, new Insets(10, 0, 0, 0));
-             -->
             <ProgressBar fx:id="progressBar" progress="0.0" maxWidth="Infinity">
                 <VBox.margin>
                     <Insets top="10"/>
@@ -108,7 +63,7 @@ after it to the right-hand end of an HBox -->
             <SplitPane fx:id="splitPane" dividerPositions="0.47" VBox.vgrow="ALWAYS"
                        styleClass="dashboard-split">
 
-                <!-- the market -->
+                <!-- LEFT: the market  -->
                 <VBox spacing="8">
                     <padding>
                         <Insets top="0" right="10" bottom="0" left="0"/>
@@ -120,10 +75,9 @@ after it to the right-hand end of an HBox -->
 
                     <Label fx:id="marketIndexLabel" text="" styleClass="muted-text, mono"/>
 
-                    <!-- ADD THE GRID OF SMALL CHARTS HERE -->
                 </VBox>
 
-                <!-- the selected company -->
+                <!-- RIGHT: the selected company -->
                 <VBox spacing="8">
                     <padding>
                         <Insets top="0" right="0" bottom="0" left="10"/>
@@ -147,18 +101,14 @@ after it to the right-hand end of an HBox -->
                     <Label fx:id="detailDescriptionLabel" text="" wrapText="true"
                            styleClass="detail-description"/>
 
-                    <!-- THE PRICE CHART -->
                     <StackPane fx:id="chartContainer" minHeight="200" VBox.vgrow="ALWAYS"
                                styleClass="chart-panel"/>
 
-                    <!-- THE STATISTICS -->
                     <StatisticsPanel fx:id="statisticsPanel"/>
 
                     <Region VBox.vgrow="ALWAYS"/>
 
-                    <!--
-                         ADD THE TRADE ROW HERE
-                         ADD THE NEWS TICKER HERE -->
+                    <TradePanel fx:id="tradePanel"/>
                 </VBox>
             </SplitPane>
         </VBox>
