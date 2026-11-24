@@ -110,5 +110,16 @@ public class Dialogs {
         return alert;
     }
 
+    /** Attaches the app stylesheets to a dialog's own scene */
+    private static void applyStylesheets(DialogPane pane) {
+        for (String path : new String[]{
+                "/com/stocksim/css/base.css",
+                "/com/stocksim/css/components.css"}) {
 
+            URL url = Dialogs.class.getResource(path);
+            if (url != null) {
+                pane.getStylesheets().add(url.toExternalForm());
+            }
+        }
+    }
 }
