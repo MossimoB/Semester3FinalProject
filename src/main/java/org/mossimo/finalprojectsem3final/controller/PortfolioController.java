@@ -37,15 +37,22 @@ public class PortfolioController implements SceneManager.ScreenController {
 
     private static final String RIGHT = "-fx-alignment: CENTER-RIGHT;";
 
-    @FXML private Label clockLabel;
-    @FXML private SummaryBar summaryBar;
+    @FXML
+    private Label clockLabel;
+    @FXML
+    private SummaryBar summaryBar;
 
-    @FXML private Label positionCountLabel;
-    @FXML private TableView<HoldingRow> holdingsTable;
-    @FXML private FlowPane totalsPane;
+    @FXML
+    private Label positionCountLabel;
+    @FXML
+    private TableView<HoldingRow> holdingsTable;
+    @FXML
+    private FlowPane totalsPane;
 
-    @FXML private Label tradeCountLabel;
-    @FXML private TableView<TransactionRow> historyTable;
+    @FXML
+    private Label tradeCountLabel;
+    @FXML
+    private TableView<TransactionRow> historyTable;
 
     private AppContext context;
     private Game game;
@@ -114,3 +121,205 @@ public class PortfolioController implements SceneManager.ScreenController {
         holdingsTable.getColumns().forEach(column -> column.setSortable(false));
     }
 
+    private void buildHistoryColumns() {
+        historyTable.getColumns().clear();
+
+        historyTable.getColumns().add(textColumn("When", 110, TransactionRow::getWhen, true));
+
+        // BUY green, SELL red, matching the buttons that made them.
+        TableColumn<TransactionRow, String> type = new TableColumn<>("Type");
+        type.setPrefWidth(70);
+        type.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getType()));
+        type.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(String text, boolean empty) {
+                super.updateItem(text, empty);
+                getStyleClass().removeAll("gain", "loss");
+                if (empty || text == null) {
+                    setText(null);
+                    return;
+                }
+                setText(text);
+                getStyleClass().add("BUY".equals(text) ? "gain" : "loss");
+            }
+        });
+        historyTable.getColumns().add(type);
+
+        historyTable.getColumns().add(textColumn("Symbol", 76, TransactionRow::getSymbol, true));
+        historyTable.getColumns().add(textColumn("Company", 130, TransactionRow::getCompanyName, false));
+
+        TableColumn<TransactionRow, String> shares = textColumn("Shares", 80,
+                TransactionRow::getShares, true);
+        shares.setStyle(RIGHT);
+        historyTable.getColumns().add(shares);
+
+        TableColumn<TransactionRow, String> price = textColumn("Price", 100,
+                TransactionRow::getPricePerShare, true);
+        price.setStyle(RIGHT);
+        historyTable.getColumns().add(price);
+
+        TableColumn<TransactionRow, String> total = textColumn("Total", 110,
+                TransactionRow::getTotal, true);
+        total.setStyle(RIGHT);
+        historyTable.getColumns().add(total);
+
+        // Realised profit, coloured by the row's own style class so a BUY reads
+        // as a neutral em dash rather than a green zero.
+        TableColumn<TransactionRow, String> realised = new TableColumn<>("Realised");
+        realised.setPrefWidth(110);
+        realised.setStyle(RIGHT);
+        realised.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getRealised()));
+        realised.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(String text, boolean empty) {
+                super.updateItem(text, empty);
+                getStyleClass().removeAll("gain", "loss", "neutral");
+                if (empty || text == null || getTableRow() == null
+                        || getTableRow().getItem() == null) {
+                    setText(null);
+                    return;
+                }
+                setText(text);
+                getStyleClass().addAll("mono", getTableRow().getItem().getRealisedStyleClass());
+            }
+        });
+        historyTable.getColumns().add(realised);
+
+        historyTable.getColumns().forEach(column -> column.setSortable(false));
+    }
+
+    /*
+    COLUMN HELPERS
+     */
+    private <T> TableColumn<T, String> textColumn(String title, int width,
+                                                  java.util.function.Function<T, String> getter,
+                                                  boolean monospaced) {
+        TableColumn<T, String> column = new TableColumn<>(title);
+        column.setPrefWidth(width);
+        column.setCellValueFactory(cell -> new SimpleStringProperty(getter.apply(cell.getValue())));
+
+        if (monospaced) {
+            column.setCellFactory(unused -> {
+                TableCell<T, String> cell = new TableCell<>() {
+                    @Override
+                    protected void updateItem(String text, boolean empty) {
+                        super.updateItem(text, empty);
+                        setText(empty ? null : text);
+                    }
+                };
+                cell.getStyleClass().add("mono");
+                return cell;
+            });
+        }
+        return column;
+    }
+
+    private <T> TableColumn<T, Double> moneyColumn(String title, int width,
+                                                   java.util.function.Function<T, Double> getter,
+                                                   boolean coloured) {
+        TableColumn<T, Double> column = new TableColumn<>(title);
+        column.setPrefWidth(width);
+        column.setStyle(RIGHT);
+        column.setCellValueFactory(cell -> new SimpleObjectProperty<>(getter.apply(cell.getValue())));
+        column.setCellFactory(unused -> new MoneyTableCell<>(coloured));
+        return column;
+    }
+
+    private <T> TableColumn<T, Double> percentColumn(String title, int width,
+                                                     java.util.function.Function<T, Double> getter) {
+        TableColumn<T, Double> column = new TableColumn<>(title);
+        column.setPrefWidth(width);
+        column.setStyle(RIGHT);
+        column.setCellValueFactory(cell -> new SimpleObjectProperty<>(getter.apply(cell.getValue())));
+        column.setCellFactory(unused -> new PercentTableCell<>(false));
+        return column;
+    }
+
+    /*
+    DATA
+     */
+
+    /**
+     * Rebuilds both tables and the totals strip from the current portfolio.
+     */
+    private void loadRows() {
+        Portfolio portfolio = game.getPortfolio();
+        double totalValue = portfolio.getTotalValue();
+
+        // --- Open positions ---
+        List<HoldingRow> positions = new ArrayList<>();
+        for (Holding holding : portfolio.getHoldings()) {
+            positions.add(new HoldingRow(holding, totalValue));
+        }
+        // Biggest position first. The player wants to see their largest bet at
+        // the top, not whichever company they happened to buy first.
+        positions.sort(Comparator.comparingDouble(HoldingRow::getCurrentValue).reversed());
+        holdingRows.setAll(positions);
+
+        positionCountLabel.setText(positions.isEmpty()
+                ? ""
+                : positions.size() + (positions.size() == 1 ? " company" : " companies"));
+
+        // --- Trade history, newest first ---
+        List<TransactionRow> history = new ArrayList<>();
+        for (Transaction transaction : portfolio.getTransactions()) {
+            history.add(new TransactionRow(transaction));
+        }
+        java.util.Collections.reverse(history);
+        historyRows.setAll(history);
+
+        tradeCountLabel.setText(history.isEmpty()
+                ? ""
+                : history.size() + (history.size() == 1 ? " trade" : " trades"));
+
+        buildTotals(portfolio);
+    }
+
+    /**
+     * The strip of figures under the holdings table.
+     */
+    private void buildTotals(Portfolio portfolio) {
+        totalsPane.getChildren().clear();
+
+        addTotal("Total invested", Formatters.money(portfolio.getTotalInvested()), null);
+        addTotal("Current value", Formatters.money(portfolio.getHoldingsValue()), null);
+
+        double unrealised = portfolio.getUnrealisedProfit();
+        addTotal("Unrealised P / L", Formatters.signedMoney(unrealised),
+                Formatters.signClass(unrealised));
+
+        double realised = portfolio.getRealisedProfit();
+        addTotal("Realised P / L", Formatters.signedMoney(realised),
+                Formatters.signClass(realised));
+
+        addTotal("Cash", Formatters.money(portfolio.getCash()), null);
+        addTotal("Invested", Formatters.plainPercent(portfolio.getInvestedPercent()), null);
+    }
+
+    private void addTotal(String caption, String value, String styleClass) {
+        Label captionLabel = new Label(caption);
+        captionLabel.getStyleClass().add("stat-label");
+
+        Label valueLabel = new Label(value);
+        valueLabel.getStyleClass().addAll("stat-value", "mono");
+        if (styleClass != null) {
+            valueLabel.getStyleClass().add(styleClass);
+        }
+
+        totalsPane.getChildren().add(new VBox(1, captionLabel, valueLabel));
+    }
+
+    /*
+    NAVIGATION
+     */
+
+    @FXML
+    private void onBack() {
+        context.show(ScreenId.DASHBOARD);
+    }
+
+    @FXML
+    private void onMenu() {
+        context.show(ScreenId.MAIN_MENU);
+    }
+}
