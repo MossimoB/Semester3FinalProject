@@ -3,14 +3,17 @@ package org.mossimo.finalprojectsem3final.controller;
 import org.mossimo.finalprojectsem3final.app.AppContext;
 import org.mossimo.finalprojectsem3final.app.SceneManager;
 import org.mossimo.finalprojectsem3final.app.ScreenId;
-// import org.mossimo.finalprojectsem3final.model.Game;
-// import org.mossimo.finalprojectsem3final.model.Simulation;
+import org.mossimo.finalprojectsem3final.model.Game; // Justin still hasn't created the file, won't work until he does
+import org.mossimo.finalprojectsem3final.model.Simulation;  // Justin still hasn't created the file, won't work until he does
 import org.mossimo.finalprojectsem3final.model.Stock;
-// import org.mossimo.finalprojectsem3final.ui.ClockSpeed;
+import org.mossimo.finalprojectsem3final.model.TradeResult;
+import org.mossimo.finalprojectsem3final.ui.ClockSpeed;  // Justin still hasn't created the file, won't work until he does
 import org.mossimo.finalprojectsem3final.ui.MarketTableFactory;
-// import org.mossimo.finalprojectsem3final.ui.SimulationClock;
+import org.mossimo.finalprojectsem3final.ui.SimulationClock;  // Justin still hasn't created the file, won't work until he does
+import org.mossimo.finalprojectsem3final.ui.Dialogs;
 import org.mossimo.finalprojectsem3final.ui.StatisticsPanel;
-// import org.mossimo.finalprojectsem3final.ui.SummaryBar;
+import org.mossimo.finalprojectsem3final.ui.TradePanel;
+import org.mossimo.finalprojectsem3final.ui.SummaryBar;
 import org.mossimo.finalprojectsem3final.ui.chart.PriceChartBuilder;
 import org.mossimo.finalprojectsem3final.util.Formatters;
 
@@ -56,6 +59,8 @@ Each name must match an fx:id in dashboard.fxml exactly, including case
     @FXML private StackPane chartContainer;
     @FXML private StatisticsPanel statisticsPanel;
 
+    @FXML private TradePanel tradePanel;
+
     private AppContext context;
     private Game game;
     private Simulation simulation;
@@ -72,18 +77,24 @@ Each name must match an fx:id in dashboard.fxml exactly, including case
      */
     @FXML
     public void initialize(){
-        MarketTableFactory.configure(marketTable);
+        MarketTableFactory.configure(marketTable, () -> game == null ? null : game.getPortfolio());
         marketTable.setItems(marketRows);
 
-        // no clock to control yet
-        playPauseButton.setDisable(true);
-        speedButton.setDisable(true);
+        // Redraw the right-hand panel whenever the selection changes
+        marketTable.getSelectionModel().selectedItemProperty()
+                .addListener((observable, oldStock, newStock) -> showSelectedStock(newStock));
+
+        // Drop the chart into its empty container
+        chartContainer.getChildren().add(priceChart.getChart());
+
+        tradePanel.setOnBuy(this::buy);
+        tradePanel.setOnSell(this::sell);
+
+        portfolioButton.setDisable(true);
+        saveButton.setDisable(true);
     }
 
-    /**
-     * Runs after the FXML has landed
-     * The context exists from here on
-     */
+
     @Override
     public void init(AppContext context) {
         this.context = context;
@@ -103,6 +114,10 @@ Each name must match an fx:id in dashboard.fxml exactly, including case
 
         refresh();
     }
+
+    /*
+    REPAINTING
+     */
 
     /** Updates every part of the screen from the current model state */
     private void refresh() {
@@ -131,6 +146,7 @@ Each name must match an fx:id in dashboard.fxml exactly, including case
             riskBadge.setText("");
             priceChart.clear();
             statisticsPanel.update(null);
+            tradePanel.update(null, null);
             return;
         }
 
@@ -150,6 +166,7 @@ Each name must match an fx:id in dashboard.fxml exactly, including case
         // changed) or just append the newest point (same company, one more tick)
         priceChart.show(stock);
         statisticsPanel.update(stock);
+        tradePanel.update(stock, game.getPortfolio());
 
         riskBadge.setText(stock.getRiskLabel() + " risk");
         riskBadge.getStyleClass().removeAll("gain", "loss", "warning", "neutral");
@@ -169,6 +186,7 @@ Each name must match an fx:id in dashboard.fxml exactly, including case
     private void onGameFinished() {
         playPauseButton.setDisable(true);
         speedButton.setDisable(true);
+        tradePanel.setTradingEnabled(false);
         refresh();
     }
 
@@ -178,9 +196,82 @@ Each name must match an fx:id in dashboard.fxml exactly, including case
         }
     }
 
-/*
-        button handlers
- */
+    /*
+    TRADING
+     */
+
+    /**
+     * Buys the requested quantity of the selected company
+     */
+    private void buy(int quantity) {
+        Stock stock = getSelectedStock();
+        if (stock == null) {
+            return;
+        }
+
+        TradeResult result = game.getPortfolio().buy(stock, quantity,
+                simulation.getCurrentDay(), simulation.getCurrentHour());
+
+        tradePanel.showResult(result);
+        refresh();
+    }
+
+    /**
+     * Sells the requested quantity
+     */
+    private void sell(int quantity) {
+        Stock stock = getSelectedStock();
+        if (stock == null) {
+            return;
+        }
+
+        var holding = game.getPortfolio().getHolding(stock.getSymbol());
+
+        if (holding != null && holding.getShares() >= quantity && quantity > 0) {
+            double lossPerShare = holding.getAverageCost() - stock.getCurrentPrice();
+
+            if (lossPerShare > 0) {
+                boolean confirmed = Dialogs.confirm(
+                        dialogOwner(),
+                        "Sell at a loss?",
+                        String.format(
+                                "You paid an average of %s per share and %s is now %s."
+                                        + "%n%nSelling %d shares locks in a loss of %s.",
+                                Formatters.money(holding.getAverageCost()),
+                                stock.getSymbol(),
+                                Formatters.money(stock.getCurrentPrice()),
+                                quantity,
+                                Formatters.money(lossPerShare * quantity)),
+                        "Sell anyway", "Keep holding");
+
+                if (!confirmed) {
+                    tradePanel.clearMessage();
+                    return;
+                }
+            }
+        }
+
+        TradeResult result = game.getPortfolio().sell(stock, quantity,
+                simulation.getCurrentDay(), simulation.getCurrentHour());
+
+        tradePanel.showResult(result);
+        refresh();
+    }
+
+    /** The company the player has selected, or null */
+    private Stock getSelectedStock() {
+        return marketTable.getSelectionModel().getSelectedItem();
+    }
+
+    /** The window dialogs should open over. Null is tolerated */
+    private javafx.stage.Window dialogOwner() {
+        return marketTable.getScene() == null ? null : marketTable.getScene().getWindow();
+    }
+
+    /*
+    BUTTON HANDLERS
+     */
+
     @FXML
     private void onPlayPause() {
         clock.toggle();
