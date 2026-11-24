@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import org.mossimo.finalprojectsem3final.ui.SummaryBar?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.stocksim.controller.PortfolioController"
+            styleClass="root-pane">
+
+    <!-- HEADER -->
+    <top>
+        <VBox styleClass="app-header">
+            <HBox alignment="CENTER_LEFT" spacing="14">
+                <Label text="MY PORTFOLIO" styleClass="app-brand"/>
+                <Label fx:id="clockLabel" text="" styleClass="app-clock"/>
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <Button text="Back to market" onAction="#onBack" styleClass="button-primary"/>
+                <Button text="Menu" onAction="#onMenu" styleClass="button-ghost"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <VBox>
+            <padding>
+                <Insets top="0" right="18" bottom="18" left="18"/>
+            </padding>
+
+            <SummaryBar fx:id="summaryBar"/>
+
+            <!-- Vertical split: holdings above, trade history below. -->
+            <SplitPane fx:id="splitPane" orientation="VERTICAL"
+                       dividerPositions="0.55" VBox.vgrow="ALWAYS">
+
+                <!-- OPEN POSITIONS -->
+                <VBox spacing="8">
+                    <padding>
+                        <Insets top="0" right="0" bottom="8" left="0"/>
+                    </padding>
+
+                    <HBox alignment="CENTER_LEFT" spacing="12">
+                        <Label text="OPEN POSITIONS" styleClass="section-label"/>
+                        <Label fx:id="positionCountLabel" text="" styleClass="muted-text"/>
+                    </HBox>
+
+                    <TableView fx:id="holdingsTable" VBox.vgrow="ALWAYS"/>
+
+                    <!-- FlowPane wraps onto a second line on a narrow window
+                         instead of clipping the last figure off the edge -->
+                    <FlowPane fx:id="totalsPane" hgap="26" vgap="6"/>
+                </VBox>
+
+                <!-- TRADE HISTORY -->
+                <VBox spacing="8">
+                    <padding>
+                        <Insets top="8" right="0" bottom="0" left="0"/>
+                    </padding>
+
+                    <HBox alignment="CENTER_LEFT" spacing="12">
+                        <Label text="TRADE HISTORY" styleClass="section-label"/>
+                        <Label fx:id="tradeCountLabel" text="" styleClass="muted-text"/>
+                    </HBox>
+
+                    <TableView fx:id="historyTable" VBox.vgrow="ALWAYS"/>
+                </VBox>
+
+            </SplitPane>
+        </VBox>
+    </center>
+</BorderPane>
