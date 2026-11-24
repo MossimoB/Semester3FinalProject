@@ -112,5 +112,89 @@ public class TradePanel extends VBox {
             }
         });
 
+        quantitySpinner.valueProperty().addListener(
+                (observable, oldValue, newValue) -> updateEstimate());
+    }
+
+    private void wireActions() {
+        buyButton.setOnAction(event -> onBuy.accept(getQuantity()));
+        sellButton.setOnAction(event -> onSell.accept(getQuantity()));
+
+        // Max fills in the largest affordable quantity. Its value comes from
+        // Portfolio.getMaxAffordable, not from a calculation done here.
+        maxButton.setOnAction(event -> {
+            if (stock == null || portfolio == null) {
+                return;
+            }
+            int affordable = Math.max(1, portfolio.getMaxAffordable(stock));
+            quantitySpinner.getValueFactory().setValue(affordable);
+        });
+    }
+
+    /*
+    UPDATING
+     */
+    /** Points the panel at a company and the player's account */
+    public void update(Stock stock, Portfolio portfolio) {
+        this.stock = stock;
+        this.portfolio = portfolio;
+
+        boolean hasStock = stock != null;
+        buyButton.setDisable(!hasStock);
+        sellButton.setDisable(!hasStock);
+        maxButton.setDisable(!hasStock);
+
+        if (!hasStock) {
+            ownedLabel.setText("");
+            estimateLabel.setText("");
+            return;
+        }
+
+        int owned = portfolio.getSharesOwned(stock.getSymbol());
+        ownedLabel.setText(String.format("You own %s %s   ·   you can afford %s",
+                Formatters.shares(owned),
+                stock.getSymbol(),
+                Formatters.shares(portfolio.getMaxAffordable(stock))));
+
+        updateEstimate();
+    }
+
+    /** Recalculates the cost of the current quantity */
+    private void updateEstimate() {
+        if (stock == null || quantitySpinner.getValue() == null) {
+            estimateLabel.setText("");
+            return;
+        }
+        double cost = getQuantity() * stock.getCurrentPrice();
+        estimateLabel.setText("= " + Formatters.money(cost));
+    }
+
+    /**
+     * Shows the outcome of a trade in the inline message label
+     *
+     * Green for a completed trade, red for a rejected one. Not a dialog: see
+     * the note at the top of Dialogs
+     */
+    public void showResult(TradeResult result) {
+        messageLabel.setText(result.getMessage());
+        messageLabel.getStyleClass().removeAll("gain", "loss");
+        messageLabel.getStyleClass().add(result.isSuccessful() ? "gain" : "loss");
+    }
+
+    public void clearMessage() {
+        messageLabel.setText("");
+    }
+
+    /** Switches the whole panel off when the game ends */
+    public void setTradingEnabled(boolean enabled) {
+        buyButton.setDisable(!enabled);
+        sellButton.setDisable(!enabled);
+        maxButton.setDisable(!enabled);
+        quantitySpinner.setDisable(!enabled);
+    }
+
+    /*
+    ACCESS
+     */
 
 }
