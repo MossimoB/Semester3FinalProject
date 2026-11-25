@@ -187,6 +187,58 @@ class PortfolioTest {
     /*
             group 4 - the two together
      */
+    @Test
+    @DisplayName("Repeat buys keep the weighted average, and a partial sale is priced from it")
+    void repeatBuysThenPartialSale() {
+        Portfolio portfolio = new Portfolio(20_000.00);
+        Stock stock = stock();
 
+        portfolio.buy(stock, 10, 1, 9);      // 10 @ $100 = $1,000
+        stock.setPrice(200.00);
+        portfolio.buy(stock, 30, 1, 12);     // 30 @ $200 = $6,000
 
+        Holding holding = portfolio.getHolding("NVT");
+        assertEquals(40, holding.getShares());
+        assertEquals(175.00, holding.getAverageCost(), TOLERANCE, "7000 / 40");
+
+        assertEquals(13_000.00, portfolio.getCash(), TOLERANCE, "20000 - 1000 - 6000");
+
+        // Sell half at $200. Each share cost an average of $175, so each makes $25
+        TradeResult result = portfolio.sell(stock, 20, 2, 9);
+
+        assertTrue(result.isSuccessful());
+        assertEquals(500.00, result.getTransaction().getRealisedProfit(), TOLERANCE,
+                "(200 - 175) x 20 = 500");
+
+        assertEquals(17_000.00, portfolio.getCash(), TOLERANCE, "13000 + (20 x 200)");
+        assertEquals(20, portfolio.getSharesOwned("NVT"));
+        assertEquals(175.00, portfolio.getHolding("NVT").getAverageCost(), TOLERANCE,
+                "selling does not change the cost of what is left");
+    }
+
+    @Test
+    @DisplayName("Trade history records every successful trade, in order")
+    void transactionHistory_recordsEverything() {
+        Portfolio portfolio = portfolio();
+        Stock stock = stock();
+
+        portfolio.buy(stock, 10, 1, 9);
+        portfolio.buy(stock, 5, 1, 14);
+        portfolio.sell(stock, 8, 3, 11);
+        portfolio.buy(stock, 9999, 3, 12);      // rejected, must not be recorded
+
+        assertEquals(3, portfolio.getTradeCount(), "the rejected trade is not history");
+
+        assertEquals(Transaction.Type.BUY, portfolio.getTransactions().get(0).getType());
+        assertEquals(Transaction.Type.SELL, portfolio.getTransactions().get(2).getType());
+
+        // getOrderKey packs day and hour into one sortable number
+        assertEquals(109, portfolio.getTransactions().get(0).getOrderKey(), "day 1, 09:00");
+        assertEquals(311, portfolio.getTransactions().get(2).getOrderKey(), "day 3, 11:00");
+
+        // The history list cannot be edited from outside
+        assertFalse(portfolio.getTransactions() == portfolio.getTransactions()
+                        && portfolio.getTransactions().getClass().getName().contains("ArrayList"),
+                "getTransactions should hand back an unmodifiable copy");
+    }
 }
