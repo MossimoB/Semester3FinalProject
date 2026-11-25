@@ -14,7 +14,7 @@
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.stocksim.controller.PortfolioController"
+            fx:controller="org.mossimo.finalprojectsem3final.controller.PortfolioController"
             styleClass="root-pane">
 
     <!-- HEADER -->

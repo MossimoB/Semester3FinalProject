@@ -1,14 +1,18 @@
 package org.mossimo.finalprojectsem3final.ui;
 
+import org.mossimo.finalprojectsem3final.model.Portfolio;
 import org.mossimo.finalprojectsem3final.model.Stock;
 import org.mossimo.finalprojectsem3final.ui.cell.MoneyTableCell;
 import org.mossimo.finalprojectsem3final.ui.cell.PercentTableCell;
+import org.mossimo.finalprojectsem3final.util.Formatters;
 
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+
+import java.util.function.Supplier;
 
 /** Sets up the columns of the market table */
 public class MarketTableFactory {
@@ -31,7 +35,7 @@ public class MarketTableFactory {
      *
      * @param table the (empty) TableView from the FXML
      */
-    public static void configure(TableView<Stock> table) {
+    public static void configure(TableView<Stock> table, Supplier<Portfolio> portfolioSupplier) {
 
         table.getColumns().clear();
 
@@ -90,7 +94,22 @@ public class MarketTableFactory {
             new SimpleObjectProperty<>(cell.getValue().getTotalPercentChange()));
         overall.setCellFactory(column -> new PercentTableCell<>(false));
 
-        table.getColumns().addAll(symbol, company, price, change, overall);
+        TableColumn<Stock, String> shares = new TableColumn<>("Owned");
+        shares.setPrefWidth(62);
+        shares.setStyle(RIGHT_ALIGNED_HEADER);
+        shares.setCellValueFactory(cell -> {
+            Portfolio portfolio = portfolioSupplier.get();
+            int owned = (portfolio == null) ? 0 : portfolio.getSharesOwned(cell.getValue().getSymbol());
+            return new SimpleStringProperty(Formatters.shares(owned));
+        });
+        shares.setCellFactory(column -> {
+            TableCell<Stock, String> cell = plainTextCell();
+            cell.getStyleClass().add("mono");
+            cell.setStyle("-fx-alignment: CENTER-RIGHT;");
+            return cell;
+        });
+
+        table.getColumns().addAll(symbol, company, price, change, overall, shares);
 
         // Sorting is switched off deliberately
         table.getColumns().forEach(column -> column.setSortable(false));

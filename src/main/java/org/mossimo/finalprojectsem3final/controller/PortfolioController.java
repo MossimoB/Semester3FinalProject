@@ -3,13 +3,13 @@ package org.mossimo.finalprojectsem3final.controller;
 import org.mossimo.finalprojectsem3final.app.AppContext;
 import org.mossimo.finalprojectsem3final.app.SceneManager;
 import org.mossimo.finalprojectsem3final.app.ScreenId;
-import org.mossimo.finalprojectsem3final.model.Game; // Justin STILL didn't do it
+import org.mossimo.finalprojectsem3final.model.Game;
 import org.mossimo.finalprojectsem3final.model.Holding;
 import org.mossimo.finalprojectsem3final.model.Portfolio;
 import org.mossimo.finalprojectsem3final.model.Transaction;
-import org.mossimo.finalprojectsem3final.ui.HoldingRow;  // Justin STILL didn't do it
+import org.mossimo.finalprojectsem3final.ui.HoldingRow;
 import org.mossimo.finalprojectsem3final.ui.SummaryBar;
-import org.mossimo.finalprojectsem3final.ui.TransactionRow;  // Justin STILL didn't do it
+import org.mossimo.finalprojectsem3final.ui.TransactionRow;
 import org.mossimo.finalprojectsem3final.ui.cell.MoneyTableCell;
 import org.mossimo.finalprojectsem3final.ui.cell.PercentTableCell;
 import org.mossimo.finalprojectsem3final.util.Formatters;

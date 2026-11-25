@@ -3,13 +3,13 @@ package org.mossimo.finalprojectsem3final.controller;
 import org.mossimo.finalprojectsem3final.app.AppContext;
 import org.mossimo.finalprojectsem3final.app.SceneManager;
 import org.mossimo.finalprojectsem3final.app.ScreenId;
-import org.mossimo.finalprojectsem3final.model.Game; // Justin still hasn't created the file, won't work until he does
-import org.mossimo.finalprojectsem3final.model.Simulation;  // Justin still hasn't created the file, won't work until he does
+import org.mossimo.finalprojectsem3final.model.Game;
+import org.mossimo.finalprojectsem3final.model.Simulation;
 import org.mossimo.finalprojectsem3final.model.Stock;
 import org.mossimo.finalprojectsem3final.model.TradeResult;
-import org.mossimo.finalprojectsem3final.ui.ClockSpeed;  // Justin still hasn't created the file, won't work until he does
+import org.mossimo.finalprojectsem3final.ui.ClockSpeed;
 import org.mossimo.finalprojectsem3final.ui.MarketTableFactory;
-import org.mossimo.finalprojectsem3final.ui.SimulationClock;  // Justin still hasn't created the file, won't work until he does
+import org.mossimo.finalprojectsem3final.ui.SimulationClock;
 import org.mossimo.finalprojectsem3final.ui.Dialogs;
 import org.mossimo.finalprojectsem3final.ui.StatisticsPanel;
 import org.mossimo.finalprojectsem3final.ui.TradePanel;
@@ -90,7 +90,6 @@ Each name must match an fx:id in dashboard.fxml exactly, including case
         tradePanel.setOnBuy(this::buy);
         tradePanel.setOnSell(this::sell);
 
-        portfolioButton.setDisable(true);
         saveButton.setDisable(true);
     }
 
@@ -288,6 +287,8 @@ Each name must match an fx:id in dashboard.fxml exactly, including case
 
     @FXML
     private void onPortfolio() {
+        stopClock();
+        context.show(ScreenId.PORTFOLIO);
     }
 
     @FXML

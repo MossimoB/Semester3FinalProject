@@ -9,7 +9,9 @@ public enum ScreenId {
     /**
      * The main playing screen
      */
-    DASHBOARD("dashboard.fxml", "StockSim - Trading");
+    DASHBOARD("dashboard.fxml", "StockSim - Trading"),
+
+    PORTFOLIO("portfolio.fxml", "StockSim - Portfolio");
 
     private static final String VIEW_FOLDER = "/org/mossimo/finalprojectsem3final/view/";
 
